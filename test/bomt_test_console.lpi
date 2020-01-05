@@ -25,7 +25,7 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <Units Count="3">
+    <Units Count="5">
       <Unit0>
         <Filename Value="bomt_test_console.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -38,6 +38,14 @@
         <Filename Value="ubomt_soggetto.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="ubomt_soggetto_rdbms_ahr.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="ubomt_persistence.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp
   { you can add units after this }
-  , ubomt, ubomt_soggetto;
+  , ubomt, ubomt_soggetto, ubomt_soggetto_rdbms_ahr, ubomt_persistence;
 
 type
 

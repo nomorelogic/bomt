@@ -5,7 +5,9 @@ unit ubomt;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils
+  ,ubomt_persistence
+  ;
 
 
 type
@@ -41,16 +43,19 @@ type
 
   TBomt_Object = class(TComponent)
   private
+    FDateQuery: TDate;
     FHasLog: boolean;
     FHasVersion: boolean;
-    FIsRdbmsMapped: boolean;
+    FPersistenceList: TBomt_Persistence_List;
   public
     constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; const ADateQuery: TDate); overload;
     destructor Destroy; override;
   published
     property HasVersion: boolean read FHasVersion write FHasVersion;
     property HasLog: boolean read FHasLog write FHasLog;
-    property IsRdbmsMapped: boolean read FIsRdbmsMapped write FIsRdbmsMapped;
+    property PersistenceList: TBomt_Persistence_List read FPersistenceList;
+    property DateQuery: TDate read FDateQuery write FDateQuery;
   end;
 
 
@@ -105,13 +110,22 @@ begin
 
   FHasLog:=False;
   FHasVersion:=False;
-  IsRdbmsMapped:=False;;
+  FPersistenceList:=TBomt_Persistence_List.Create;
+  FDateQuery:=0;
+end;
+
+constructor TBomt_Object.Create(AOwner: TComponent; const ADateQuery: TDate);
+begin
+  Create(AOwner);
+  FDateQuery:=ADateQuery;
 end;
 
 destructor TBomt_Object.Destroy;
 begin
-  inherited Destroy;
+  FPersistenceList.Clear;
+  FreeAndNil(FPersistenceList);
 
+  inherited Destroy;
 end;
 
 end.

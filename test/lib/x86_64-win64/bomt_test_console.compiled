@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="E:\Store\Marcello\dev\fpcdeluxe\fpc\bin\x86_64-win64\fpc.exe" Date="1331781331"/>
+  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -l -vewnhibq -FiE:\Store\Marcello\dev\llab\bomt\test\lib\x86_64-win64 -FuE:\Store\Marcello\dev\llab\bomt\test\ -FUE:\Store\Marcello\dev\llab\bomt\test\lib\x86_64-win64\ -FEE:\Store\Marcello\dev\llab\bomt\test\ -oE:\Store\Marcello\dev\llab\bomt\test\bomt_test_console.exe bomt_test_console.lpr"/>
+</CONFIG>
