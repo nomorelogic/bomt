@@ -5,7 +5,7 @@ unit ubomt;
 interface
 
 uses
-  Classes, SysUtils
+  Classes, SysUtils, fgl
   ,ubomt_persistence
   ;
 
@@ -37,6 +37,74 @@ type
 
   TBomt_Indirizzo_Codice = TBomt_SID5;
   TBomt_Indirizzo_Tipo = (bomt_ti_Generico, bomt_ti_Consegna, bomt_ti_Fatturazione);
+
+
+  { TBomt_SystemObject }
+  TBomt_SystemObject = class(TPersistent)
+
+  private
+    FErrors: TStringList;
+    FHints: TStringList;
+    FIsModified: boolean;
+    FIsValid: boolean;
+    FName: string;
+    FWarnings: TStringList;
+  public
+    constructor Create(const AName: string); virtual;
+    destructor Destroy; override;
+
+    property Name: string read FName write FName;
+    property IsModified: boolean read FIsModified write FIsModified;
+    property IsValid: boolean read FIsValid write FIsValid;
+    property Hints: TStringList read FHints write FHints;
+    property Warnings: TStringList read FWarnings write FWarnings;
+    property Errors: TStringList read FErrors write FErrors;
+  end;
+
+
+  TBomt_SystemObject_List = specialize TFPGObjectList<TBomt_SystemObject>;
+
+
+  { TBomt_SystemObjectManager }
+
+  TBomt_SystemObjectManager = class(TPersistent)
+  private
+    FItemIndex: UInt64;
+    FItems: TBomt_SystemObject_List;
+    procedure Clear;
+    function GetData: TBomt_SystemObject;
+  private
+    function CanValidate: boolean;
+
+    // abstract
+    function DoNew(const AId: string): Int64; virtual; abstract;
+    function DoLoadById(const AId: string): Int64; virtual; abstract;
+    procedure DoSaveItem; virtual; abstract;
+    function DoValidateItem: boolean; virtual; abstract;
+
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+
+    function Bof: boolean; virtual;
+    function Eof: boolean; virtual;
+
+    // abstract
+    function New(const AId: string): Int64; virtual;
+    function LoadById(const AId: string): Int64; virtual;
+    procedure SaveItem; virtual;
+    function ValidateItem: boolean; virtual;
+
+    procedure First; virtual;
+    procedure Prior; virtual;
+    procedure Next; virtual;
+    procedure Last; virtual;
+
+  public // property
+    property ItemIndex: UInt64 read FItemIndex write FItemIndex;
+    property Items: TBomt_SystemObject_List read FItems;
+    property Data: TBomt_SystemObject read GetData;
+  end;
 
 
   { TBomt_Object }
@@ -101,6 +169,133 @@ type
 
 
 implementation
+
+{ TBomt_SystemObject }
+
+constructor TBomt_SystemObject.Create(const AName: string);
+begin
+  FName:=AName;
+
+  FHints:=nil;
+  FWarnings:=nil;
+  FErrors:=nil;
+end;
+
+destructor TBomt_SystemObject.Destroy;
+begin
+  FreeAndNil(FErrors);
+  FreeAndNil(FWarnings);
+  FreeAndNil(FHints);
+
+  inherited Destroy;
+end;
+
+{ TBomt_SystemObjectManager }
+
+procedure TBomt_SystemObjectManager.Clear;
+begin
+  if Assigned(FItems) then begin
+     FItems.Clear;
+     FreeAndNil(FItems);
+  end;
+end;
+
+function TBomt_SystemObjectManager.GetData: TBomt_SystemObject;
+begin
+  result := Items[FItemIndex];
+end;
+
+function TBomt_SystemObjectManager.CanValidate: boolean;
+begin
+
+  with Data do begin
+    if Assigned(FHints) then
+       FHints.Clear
+    else
+       FHints:=TStringList.Create;
+
+    if Assigned(FWarnings) then
+       FWarnings.Clear
+    else
+       FWarnings:=TStringList.Create;
+
+    if Assigned(FErrors) then
+       FErrors.Clear
+    else
+       FErrors:=TStringList.Create;
+  end;
+
+  result := true;
+end;
+
+constructor TBomt_SystemObjectManager.Create;
+begin
+  FItems:=TBomt_SystemObject_List.Create;
+end;
+
+destructor TBomt_SystemObjectManager.Destroy;
+begin
+  Clear;
+
+  inherited Destroy;
+end;
+
+function TBomt_SystemObjectManager.Eof: boolean;
+begin
+  result := FItemIndex = (FItems.Count - 1);
+end;
+
+function TBomt_SystemObjectManager.New(const AId: string): Int64;
+begin
+  result := DoNew(AId);
+end;
+
+function TBomt_SystemObjectManager.LoadById(const AId: string): Int64;
+begin
+   result := DoLoadById(AId);
+end;
+
+procedure TBomt_SystemObjectManager.SaveItem;
+begin
+  DoSaveItem;
+end;
+
+function TBomt_SystemObjectManager.ValidateItem: boolean;
+begin
+
+  if not CanValidate then
+     exit;
+
+  result := DoValidateItem;
+
+end;
+
+procedure TBomt_SystemObjectManager.First;
+begin
+   ItemIndex:=0;
+end;
+
+procedure TBomt_SystemObjectManager.Prior;
+begin
+  dec(FItemIndex);
+end;
+
+procedure TBomt_SystemObjectManager.Next;
+begin
+  inc(FItemIndex);
+end;
+
+procedure TBomt_SystemObjectManager.Last;
+begin
+  FItemIndex:=fitems.Count - 1;
+end;
+
+
+
+function TBomt_SystemObjectManager.Bof: boolean;
+begin
+  result := FItemIndex = 0;
+end;
 
 { TBomt_Object }
 

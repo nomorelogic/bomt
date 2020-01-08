@@ -4,215 +4,305 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="11">
+    <Units Count="24">
       <Unit0>
         <Filename Value="bomt_test_console.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="45"/>
         <CursorPos X="45" Y="25"/>
-        <UsageCount Value="34"/>
+        <UsageCount Value="38"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="ubomt.pas"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="40"/>
-        <CursorPos X="5" Y="49"/>
-        <UsageCount Value="34"/>
+        <TopLine Value="200"/>
+        <CursorPos X="21" Y="223"/>
+        <UsageCount Value="38"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="ubomt_soggetto.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="108"/>
-        <CursorPos Y="108"/>
-        <UsageCount Value="32"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="20"/>
+        <CursorPos X="8" Y="9"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="ubomt_soggetto_rdbms_ahr.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="52"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="50"/>
         <CursorPos X="25" Y="41"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="28"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="ubomt_persistence.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="27"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="5"/>
         <CursorPos Y="51"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="28"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="69"/>
+        <CursorPos Y="85"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
         <Filename Value="..\..\fpcdeluxe\fpcsrc\packages\fcl-db\src\json\fpjsondataset.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="337"/>
         <CursorPos X="15" Y="365"/>
         <UsageCount Value="9"/>
-      </Unit5>
-      <Unit6>
+      </Unit6>
+      <Unit7>
         <Filename Value="..\..\fpcdeluxe\fpcsrc\packages\fcl-db\tests\testjsondataset.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="66"/>
         <CursorPos X="73" Y="82"/>
         <UsageCount Value="14"/>
-      </Unit6>
-      <Unit7>
+      </Unit7>
+      <Unit8>
         <Filename Value="..\..\fpcdeluxe\fpcsrc\packages\fcl-json\src\fpjson.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2433"/>
         <CursorPos X="3" Y="2435"/>
         <UsageCount Value="9"/>
-      </Unit7>
-      <Unit8>
+      </Unit8>
+      <Unit9>
         <Filename Value="ubomt_geo.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="22" Y="8"/>
         <UsageCount Value="28"/>
-      </Unit8>
-      <Unit9>
+      </Unit9>
+      <Unit10>
         <Filename Value="..\..\fpcdeluxe\fpcsrc\rtl\objpas\fgl.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="136"/>
         <CursorPos X="25" Y="153"/>
         <UsageCount Value="10"/>
-      </Unit9>
-      <Unit10>
-        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\objpas\fgl.pp"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="151"/>
-        <CursorPos X="11" Y="153"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\objpas\fgl.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="73"/>
+        <CursorPos X="14" Y="88"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="410"/>
+        <CursorPos X="3" Y="428"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\objpas\classes\compon.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="466"/>
+        <CursorPos X="3" Y="473"/>
+        <UsageCount Value="10"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\inc\objpash.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="176"/>
+        <CursorPos X="23" Y="194"/>
+        <UsageCount Value="10"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\inc\objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="275"/>
+        <CursorPos X="9" Y="277"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\objpas\classes\persist.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="52"/>
+        <CursorPos X="3" Y="54"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\fcl-db\src\sqldb\interbase\ibconnection.pp"/>
+        <UnitName Value="IBConnection"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="447"/>
+        <CursorPos X="32" Y="462"/>
+        <UsageCount Value="11"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\fcl-db\src\sqldb\sqldb.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="165"/>
+        <CursorPos X="3" Y="182"/>
+        <UsageCount Value="11"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\fcl-db\src\sqldb\mssql\mssqlconn.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1090"/>
+        <CursorPos Y="1115"/>
+        <UsageCount Value="10"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\sqlite\src\sqlite3.pp"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\postgres\src\postgres3.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="29"/>
+        <CursorPos X="34" Y="57"/>
+        <UsageCount Value="10"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\packages\postgres\src\postgres.pp"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="..\..\..\fpcdeluxe\fpcsrc\rtl\inc\systemh.inc"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="94"/>
+        <CursorPos X="3" Y="111"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit23>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="45" Column="6" TopLine="19"/>
+        <Caret Line="56" Column="50" TopLine="34"/>
       </Position1>
       <Position2>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="131" Column="3" TopLine="104"/>
+        <Caret Line="53" Column="30" TopLine="34"/>
       </Position2>
       <Position3>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="41" TopLine="20"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="27" TopLine="17"/>
       </Position3>
       <Position4>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="33" Column="6" TopLine="28"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="61" Column="51" TopLine="43"/>
       </Position4>
       <Position5>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="20" Column="12"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="177" Column="15" TopLine="175"/>
       </Position5>
       <Position6>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="32" TopLine="12"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="95" Column="18" TopLine="75"/>
       </Position6>
       <Position7>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="29" Column="29" TopLine="12"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="251" Column="3" TopLine="248"/>
       </Position7>
       <Position8>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="33" Column="18" TopLine="12"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="77" Column="4" TopLine="48"/>
       </Position8>
       <Position9>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="24" Column="21" TopLine="15"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="53" Column="20" TopLine="48"/>
       </Position9>
       <Position10>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="14" Column="25"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="80" Column="7" TopLine="57"/>
       </Position10>
       <Position11>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="18" Column="20"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="75" Column="16" TopLine="69"/>
       </Position11>
       <Position12>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="51" Column="22" TopLine="34"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="62" Column="13" TopLine="43"/>
       </Position12>
       <Position13>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="113" Column="19" TopLine="99"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="81" Column="18" TopLine="58"/>
       </Position13>
       <Position14>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="49" Column="21" TopLine="32"/>
+        <Caret Line="53" Column="19" TopLine="35"/>
       </Position14>
       <Position15>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="51" Column="5" TopLine="32"/>
+        <Caret Line="177" Column="3" TopLine="175"/>
       </Position15>
       <Position16>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="118" Column="3" TopLine="96"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="37" Column="63" TopLine="10"/>
       </Position16>
       <Position17>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="11" Column="5"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="105" Column="62" TopLine="73"/>
       </Position17>
       <Position18>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="121" Column="28" TopLine="97"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="85" Column="33" TopLine="61"/>
       </Position18>
       <Position19>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="57" Column="14" TopLine="40"/>
+        <Caret Line="106" Column="14" TopLine="89"/>
       </Position19>
       <Position20>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="40" Column="3" TopLine="23"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="60" Column="50" TopLine="28"/>
       </Position20>
       <Position21>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="121" Column="28" TopLine="97"/>
+        <Filename Value="ubomt_so_connection.pas"/>
+        <Caret Line="108" Column="15" TopLine="85"/>
       </Position21>
       <Position22>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="119" Column="28" TopLine="96"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="96" Column="19" TopLine="77"/>
       </Position22>
       <Position23>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="121" Column="11" TopLine="95"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="256" Column="3" TopLine="253"/>
       </Position23>
       <Position24>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="57" Column="14" TopLine="40"/>
+        <Caret Line="77" Column="14" TopLine="64"/>
       </Position24>
       <Position25>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="119" Column="28" TopLine="100"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="210" TopLine="208"/>
       </Position25>
       <Position26>
-        <Filename Value="ubomt_soggetto.pas"/>
-        <Caret Line="130" TopLine="100"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="96" Column="14" TopLine="70"/>
       </Position26>
       <Position27>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="57" Column="14" TopLine="40"/>
+        <Caret Line="256" Column="3" TopLine="254"/>
       </Position27>
       <Position28>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="49" Column="5" TopLine="40"/>
+        <Caret Line="77" Column="14" TopLine="61"/>
       </Position28>
       <Position29>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="40" Column="3" TopLine="23"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="227" Column="23" TopLine="208"/>
       </Position29>
       <Position30>
-        <Filename Value="ubomt_persistence.pas"/>
-        <Caret Line="28" Column="19" TopLine="10"/>
+        <Filename Value="ubomt.pas"/>
+        <Caret Line="205" Column="4" TopLine="188"/>
       </Position30>
     </JumpHistory>
     <RunParams>
