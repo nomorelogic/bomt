@@ -14,12 +14,14 @@ type
 
   { Tipi dato base }
 
-  TBomt_SID = string[30];
+  TBomt_SID = string[36];
   TBomt_SID2 = string[2];
   TBomt_SID3 = string[3];
   TBomt_NID3 = string[3];
   TBomt_SID5 = string[5];
   TBomt_SID10 = string[10];
+
+  TBomt_ArrayOf_SID = array of TBomt_SID;
 
   { Tipi dato generici }
 
