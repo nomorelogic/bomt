@@ -42,10 +42,10 @@ type
 
   TBomtSoConnectionManager = class(TBomt_SystemObjectManager)
   private
-    function DoNew(const AId: string): Int64; virtual;
-    function DoLoadById(const AId: string): Int64; virtual;
+    function DoNew(const AName: string): Int64; virtual; reintroduce;
+    function DoAppend(const AName: string): Int64; virtual;
     procedure DoSaveItem; virtual;
-    function DoValidateItem: boolean; virtual;
+    procedure DoValidateItem; virtual;
   end;
 
 var
@@ -58,13 +58,15 @@ implementation
 
 { TBomtSoConnectionManager }
 
-function TBomtSoConnectionManager.DoNew(const AId: string): Int64;
+function TBomtSoConnectionManager.DoNew(const AName: string): Int64;
 begin
-   ItemIndex := Items.Add( TBomtSoConnection.Create(AId) );
+   // inherited DoNew(AName);
+
+   ItemIndex := Items.Add( TBomtSoConnection.Create(AName) );
    result:= ItemIndex;
 end;
 
-function TBomtSoConnectionManager.DoLoadById(const AId: string): Int64;
+function TBomtSoConnectionManager.DoAppend(const AName: string): Int64;
 begin
    result := -1;
 end;
@@ -74,13 +76,16 @@ begin
 
 end;
 
-function TBomtSoConnectionManager.DoValidateItem: boolean;
+procedure TBomtSoConnectionManager.DoValidateItem;
 var CurrData: TBomtSoConnection;
 begin
-
-   // validate errors
-   if Data.Name = '' then
-      Data.Errors.Add('Nome non specificato');
+   // -----------------------------------------------------------
+   // source notes
+   // -----------------------------------------------------------
+   // Popolare Hints, Warning ed Errors
+   // Validazione OK se (Errors.Count = 0)
+   // NB: property Name è validata in TBomt_SystemObjectManager
+   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
    // validate warnings
    CurrData:=TBomtSoConnection(Data);
@@ -97,7 +102,7 @@ begin
       CurrData.Warnings.Add('Attenzione: password non specificata');
 
    // result
-   result := CurrData.Errors.Count = 0;
+   //result := CurrData.Errors.Count = 0;
 end;
 
 initialization
