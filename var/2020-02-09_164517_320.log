@@ -1,0 +1,13 @@
+2020-02-09 16:45:17 service login
+2020-02-09 16:45:17 method brkDataGet
+2020-02-09 16:45:17 token = 
+2020-02-09 16:45:17 session = 
+2020-02-09 16:45:17 params = usr=marcelloX;pwd=pippo555;env=DDNRT
+2020-02-09 16:45:17 TBomt_Auth_Service
+2020-02-09 16:45:17 Begin execute
+2020-02-09 16:45:17 TBomt_Auth_Reader.Create
+2020-02-09 16:45:17 folder = /media/dati/dev/llab2/bomt/sys
+2020-02-09 16:45:17 file name = bomt_users.ini
+2020-02-09 16:45:17 user marcelloX not found!
+2020-02-09 16:45:17 End execute
+2020-02-09 16:45:17 service stop

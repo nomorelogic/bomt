@@ -24,7 +24,7 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
-    <Units Count="8">
+    <Units Count="9">
       <Unit0>
         <Filename Value="bomt_test_console.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -57,6 +57,10 @@
         <Filename Value="ubomt_svc_authenticate.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="ubomt_so_user.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,0 +1,14 @@
+2020-02-09 17:04:39 service login
+2020-02-09 17:04:39 method brkDataGet
+2020-02-09 17:04:39 token = 
+2020-02-09 17:04:39 session = 
+2020-02-09 17:04:39 params = usr=marcello;pwd=pippo555;env=DDNRT
+2020-02-09 17:04:41 TBomt_Auth_Service
+2020-02-09 17:04:41 Begin execute
+2020-02-09 17:04:41 TBomt_Auth_Reader.Create
+2020-02-09 17:04:41 folder = /media/dati/dev/llab2/bomt/sys
+2020-02-09 17:04:41 file name = bomt_users.ini
+2020-02-09 17:04:57 login marcello, role root
+2020-02-09 17:05:06 Session life = 600
+2020-02-09 17:05:06 End execute
+2020-02-09 17:05:06 service stop

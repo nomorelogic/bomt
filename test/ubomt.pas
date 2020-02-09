@@ -144,6 +144,8 @@ type
     destructor Destroy; override;
 
     procedure Send(const AMsg: string);
+    procedure Watch(const AKey, AVal: string);
+    procedure Watch(const AKey: string; const AVal: Int64);
     // procedure Send(ARequest: TBomt_Request);
 
     property Config: TBomt_AppConfig read FConfig write FConfig;
@@ -235,7 +237,7 @@ type
     constructor Create(const AConfig: TBomt_AppConfig; const ALogger: TBomt_Logger); virtual; overload;
 
 
-    procedure LoadItem(const ASid: TBomt_SID); virtual; abstract;
+    function LoadItem(const ASid: TBomt_SID): integer; virtual; abstract;
     procedure LoadAll; virtual; abstract;
 
 
@@ -320,6 +322,7 @@ type
     property Logger: TBomt_Logger read FLogger write SetLogger;
     property Reader: TBomt_Reader read FReader write SetReader;
     property Writer: TBomt_Writer read FWriter write SetWriter;
+    // validator
 
   end;
 
@@ -355,6 +358,28 @@ type
 
   { TBomt_HashServiceList }
   TBomt_HashServiceList = specialize TFPGMap<string,TServiceClass>;
+
+
+  // -----------
+  // bomt system objscts
+  // -----------
+
+
+  { TBomtSoUser }
+
+  TBomtSoUser = class(TBomt_SystemObject)
+  private
+    FPassword: string;
+    FRole: string;
+    FSessionLife: Int64;
+    FUserName: string;
+  published
+    property UserName: string read FUserName write FUserName;
+    property Password: string read FPassword write FPassword;
+    property Role: string read FRole write FRole;
+    property SessionLife: Int64 read FSessionLife write FSessionLife;
+  end;
+
 
 
   // -----------
@@ -469,6 +494,16 @@ begin
    DoSend( Format('%s %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), AMsg ]));
 end;
 
+procedure TBomt_Logger.Watch(const AKey, AVal: string);
+begin
+  Send(AKey + ' = ' + AVal);
+end;
+
+procedure TBomt_Logger.Watch(const AKey: string; const AVal: Int64);
+begin
+  Send(AKey + ' = ' + IntToStr(AVal));
+end;
+
 { TBomt_Service }
 
 constructor TBomt_Service.Create;
@@ -521,6 +556,7 @@ begin
   FResponseData:=nil;
   FResponseUtils:=nil
 end;
+
 
 { TBomt_Request }
 
@@ -614,6 +650,8 @@ begin
 
     // Connections
     _ReadSection('Connections');
+
+    _ReadSection('Sys');
 
     _ReadSection('Log');
 

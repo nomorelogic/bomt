@@ -14,7 +14,9 @@ uses
   // , ubomt_persistence
   // , ubomt_so_connection
   // , ubomt_rest
-  , ubomt_svc_authenticate;
+  , ubomt_svc_authenticate
+  , fpjson
+  ;
 
 type
 
@@ -50,7 +52,7 @@ var
   ErrorMsg: String;
   cnf: TBomt_AppConfig;
   blog: TBomt_Logger;
-
+  sPar: string;
 begin
   // quick check parameters
   ErrorMsg:=CheckOptions('hsmtxp', 'help');
@@ -85,10 +87,10 @@ begin
   if HasOption('x', 'session') then
      FSession:=GetOptionValue('x');
 
-  if HasOption('p', 'params') then
-     FParams.Text:=GetOptionValue('p');
-
-  { add your program here }
+  if HasOption('p', 'params') then begin
+     sPar:=GetOptionValue('p');
+     FParams.Text:=StringReplace(sPar, ';', #$D#$A, [rfReplaceAll]);
+  end;
 
   // config
   cnf:=TBomt_AppConfig.Create('/media/dati/dev/llab2/bomt/test/bomt.ini');
@@ -106,9 +108,9 @@ begin
     else
        blog.Send('method unknown');
     end;
-    blog.Send('token   ' + Token);
-    blog.Send('session ' + Session);
-    blog.Send('params  ' + Params.Text);
+    blog.Watch('token', Token);
+    blog.Watch('session', Session);
+    blog.Watch('params', sPar);
 
     ExecuteService(cnf, blog);
   finally
@@ -128,6 +130,7 @@ procedure TBomtTestApplication.ExecuteService(const AConfig: TBomt_AppConfig;
 var req: TBomt_Request;
     res: TBomt_Response;
     svc: TBomt_Service; // TBomt_Auth_Service;
+    jResp, jo: TJSONObject;
 begin
 
   // richiesta
@@ -144,10 +147,29 @@ begin
   // servizio
   // svc := TBomt_Auth_Service.Create(req, res, cnf, blog);
   svc := ServiceList[ServiceName].Create(req, res, AConfig, ALogger);
+  jResp:=TJSONObject.Create;
   try
 
     try
       svc.Execute;
+      jo:=TJSONObject.Create;
+      jo.Add('Code', res.StatusCod);
+      jo.Add('Description', res.StatusDes);
+      jResp.Add('Status', jo);
+
+      if Assigned(res.ResponseData) then
+         jResp.Add('Data', res.ResponseData);
+
+      if Assigned(res.ResponseUtils) then
+         jResp.Add('Utils', res.ResponseUtils);
+
+      if Assigned(res.DocTech) then
+         jResp.Add('DocTech', res.DocTech);
+
+      if Assigned(res.DocUser) then
+         jResp.Add('DocUser', res.DocUser);
+
+      ALogger.Send(jResp.AsJSON);
 
     except
       on e: Exception do begin
@@ -158,6 +180,7 @@ begin
 
 
   finally
+    FreeAndNil(jResp);
     FreeAndNil(svc);
     FreeAndNil(req);
     FreeAndNil(res);
