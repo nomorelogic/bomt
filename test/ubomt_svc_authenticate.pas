@@ -34,13 +34,18 @@ type
   { TBomt_Auth_Service }
 
   TBomt_Auth_Service = Class(TBomt_Service)
+  private
+    function CreateToken(const AUser, ARole: string): string;
+    // function CreateSession(const AUser, ARole, AToken: string): string; // sessione non necessaria
   public
     const ServiceName = 'login';
   public
 
     function DoExecute: boolean; override;
-    function CreateToken(const AUser, ARole: string): string;
-    function CreateSession(const AUser, ARole, AToken: string): string;
+
+
+    function Login: boolean;
+
   end;
 
 
@@ -83,7 +88,7 @@ begin
            Response.ResponseData:=TJSONObject.Create;
            sToken:=CreateToken(WUser.UserName, WUser.Role);
            Response.ResponseData.Add('token', sToken);
-           Response.ResponseData.Add('session', CreateSession(WUser.UserName, WUser.Role, sToken));
+           // Response.ResponseData.Add('session', CreateSession(WUser.UserName, WUser.Role, sToken));
 
            Logger.Send(Format('login %s, role %s', [sUser, WUser.Role]));
            Logger.Watch('Session life', WUser.SessionLife);
@@ -130,6 +135,7 @@ begin
 end;
 
 
+{
 function TBomt_Auth_Service.CreateSession(const AUser, ARole, AToken: string): string;
 var s, sfilename: string;
     sl:TStringList;
@@ -154,6 +160,7 @@ begin
    end;
    result:=s;
 end;
+}
 
 { TBomt_Auth_Reader }
 
