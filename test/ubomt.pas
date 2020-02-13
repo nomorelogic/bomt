@@ -85,6 +85,9 @@ type
                        );
 
 
+  TBomt_ResponseFormat = (brfUndefined, brfJson, brfOdf, brfCsv, brfPdf);
+
+  TBomt_ResponseFormat_Set = set of TBomt_ResponseFormat;
 
 
   // - business object -------------
@@ -326,12 +329,32 @@ type
 
   end;
 
+  TBomt_Service_Procedure = function: boolean of object;
+
+  { TBomt_Service_Handler }
+
+  TBomt_Service_Handler = class
+  private
+    FDefaultResponseformat: TBomt_ResponseFormat;
+    FEndpoint: string;
+    FExecute: TBomt_Service_Procedure;
+    FResponseFormats: TBomt_ResponseFormat_Set;
+  published
+    property Endpoint: string read FEndpoint write FEndpoint;
+    property ResponseFormats: TBomt_ResponseFormat_Set read FResponseFormats write FResponseFormats;
+    property DefaultResponseformat: TBomt_ResponseFormat read FDefaultResponseformat write FDefaultResponseformat;
+    property Execute: TBomt_Service_Procedure read FExecute write FExecute;
+  end;
+
+
+  TBomt_ServiceHandler_List = specialize TFPGMap<string,TBomt_Service_Handler>;
 
   { TBomt_Service }
 
   TBomt_Service = class
   private
     FConfig: TBomt_AppConfig;
+    FHandlerList: TBomt_ServiceHandler_List;
     FLogger: TBomt_Logger;
     FRequest: TBomt_Request;
     FResponse: TBomt_Response;
@@ -351,6 +374,8 @@ type
     property Response: TBomt_Response read FResponse write FResponse;
     property Config: TBomt_AppConfig read FConfig write FConfig;
     property Logger: TBomt_Logger read FLogger write FLogger;
+  published
+    property HandlerList: TBomt_ServiceHandler_List read FHandlerList write FHandlerList;
   end;
 
 
@@ -511,6 +536,8 @@ begin
   FConfig:=nil;
   FRequest:=nil;
   FResponse:=nil;
+
+  HandlerList:=TBomt_ServiceHandler_List.Create;
 end;
 
 constructor TBomt_Service.Create(const ARequest: TBomt_Request;
@@ -533,6 +560,11 @@ begin
   // by default NOT owns request and response
   // FreeAndNil(FRequest);
   // FreeAndNil(FResponse);
+
+  if Assigned(FHandlerList) then begin
+      FHandlerList.Clear;
+      FreeAndNil(FHandlerList);
+  end;
 
   if Assigned(FLogger) then
      FLogger.Send('service stop');

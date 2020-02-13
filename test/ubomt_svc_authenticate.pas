@@ -40,6 +40,8 @@ type
   public
     const ServiceName = 'login';
   public
+    constructor Create; override;
+
 
     function DoExecute: boolean; override;
 
@@ -112,6 +114,11 @@ begin
 
 end;
 
+function TBomt_Auth_Service.Login: boolean;
+begin
+  result := DoExecute;
+end;
+
 function TBomt_Auth_Service.CreateToken(const AUser, ARole: string): string;
 var s, sfilename: string;
     sl:TStringList;
@@ -132,6 +139,14 @@ begin
      FreeAndNil(sl);
    end;
    result:=s;
+end;
+
+constructor TBomt_Auth_Service.Create;
+begin
+  inherited Create;
+
+  HandlerList['login2'] := @Login;
+
 end;
 
 
