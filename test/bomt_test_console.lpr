@@ -26,7 +26,7 @@ type
   protected
     procedure DoRun; override;
   private
-    FMethod: TBomt_RequestKind;
+    FMethod: TBomt_RequestMethod;
     FParams: TStringList;
     FServiceName: string;
     FSession: string;
@@ -38,7 +38,7 @@ type
     procedure WriteHelp; virtual;
 
     property ServiceName: string read FServiceName write FServiceName;
-    property Method: TBomt_RequestKind read FMethod write FMethod;
+    property Method: TBomt_RequestMethod read FMethod write FMethod;
     property Token: string read FToken write FToken;
     property Session: string read FSession write FSession;
     property Params: TStringList read FParams write FParams;
@@ -133,6 +133,8 @@ var req: TBomt_Request;
     jResp, jo: TJSONObject;
 begin
 
+  ALogger.Send('Main execute: BEGIN');
+
   // richiesta
   req:=TBomt_Request.Create;
   req.AuthToken   := Token;
@@ -146,12 +148,21 @@ begin
 
   // servizio
   // svc := TBomt_Auth_Service.Create(req, res, cnf, blog);
+  if ServiceList.IndexOf(ServiceName) >= 0 then begin
+     ALogger.Send('Main execute - Found: ' + ServiceName);
+     ALogger.Send('Main execute - Class: ' + ServiceList[ServiceName].ClassName);
+  end else begin
+     ALogger.Send('Main execute - NO SERVICE FOUND!');
+  end;
+
   svc := ServiceList[ServiceName].Create(req, res, AConfig, ALogger);
   jResp:=TJSONObject.Create;
   try
 
     try
+      ALogger.Send('Main execute - run service');
       svc.Execute;
+      ALogger.Send('Main execute - end of run (service)');
       jo:=TJSONObject.Create;
       jo.Add('Code', res.StatusCod);
       jo.Add('Description', res.StatusDes);
@@ -170,6 +181,7 @@ begin
          jResp.Add('DocUser', res.DocUser);
 
       ALogger.Send(jResp.AsJSON);
+      writeln(jResp.AsJSON);
 
     except
       on e: Exception do begin
@@ -186,6 +198,7 @@ begin
     FreeAndNil(res);
   end;
 
+  ALogger.Send('Main execute: END');
 end;
 
 constructor TBomtTestApplication.Create(TheOwner: TComponent);

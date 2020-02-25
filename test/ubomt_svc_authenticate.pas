@@ -1,6 +1,6 @@
 unit ubomt_svc_authenticate;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$modeswitch prefixedattributes}
 
 interface
 
@@ -10,6 +10,8 @@ uses
   , IniFiles
   , md5
   , fpjson
+  , typinfo
+  , rtti
   ;
 
 
@@ -33,26 +35,31 @@ type
 
   { TBomt_Auth_Service }
 
+  [TBomt_Service('login', 'Servizio per autenticazione utenti e validazione tokens')]
   TBomt_Auth_Service = Class(TBomt_Service)
   private
     function CreateToken(const AUser, ARole: string): string;
+    function GetLogin: boolean;
     // function CreateSession(const AUser, ARole, AToken: string): string; // sessione non necessaria
   public
-    const ServiceName = 'login';
+    // const ServiceName = 'login';
   public
-    constructor Create; override;
-
 
     function DoExecute: boolean; override;
+    procedure ReadServiceMethods;
 
+  published
 
-    function Login: boolean;
+    [TBomt_Method([brkDataGet, brkDataQuery])]
+    property Login: boolean read GetLogin;
 
   end;
 
 
 
 implementation
+
+uses variants;
 
 { TBomt_Auth_Service }
 
@@ -64,6 +71,12 @@ var m: TBomt_SystemObjectManager;
     WUser: TBomtSoUser;
     i: integer;
 begin
+   // writeln('... TBomt_Auth_Service.DoExecute');
+   // ReadServiceMethods;
+   // DumpTypeInfo(self);
+   // writeln('... test get');
+   // TestGet(self);
+   // writeln('... TBomt_Auth_Service.DoExecute');
 
    Response.StatusCod:=0;
    Response.StatusDes:='';
@@ -114,10 +127,11 @@ begin
 
 end;
 
-function TBomt_Auth_Service.Login: boolean;
+procedure TBomt_Auth_Service.ReadServiceMethods;
 begin
-  result := DoExecute;
+
 end;
+
 
 function TBomt_Auth_Service.CreateToken(const AUser, ARole: string): string;
 var s, sfilename: string;
@@ -141,13 +155,12 @@ begin
    result:=s;
 end;
 
-constructor TBomt_Auth_Service.Create;
+function TBomt_Auth_Service.GetLogin: boolean;
 begin
-  inherited Create;
-
-  HandlerList['login2'] := @Login;
-
+  writeln('--- TBomt_Auth_Service.GetLogin: boolean; ---');
+  result := false; //DoExecute;
 end;
+
 
 
 {
@@ -233,8 +246,8 @@ end;
 
 
 initialization
-    ServiceList[TBomt_Auth_Service.ServiceName]:= TBomt_Auth_Service;
-
+    // ServiceList[TBomt_Auth_Service.ServiceName]:= TBomt_Auth_Service;
+    Bomt_RegisterService(TBomt_Auth_Service);
 
 end.
 
