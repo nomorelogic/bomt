@@ -4,29 +4,29 @@
     <PathDelim Value="\"/>
     <Version Value="12"/>
     <BuildModes Active="Default"/>
-    <Units Count="43">
+    <Units Count="46">
       <Unit0>
         <Filename Value="bomt_test_console.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="148"/>
-        <CursorPos X="39" Y="149"/>
-        <UsageCount Value="76"/>
+        <TopLine Value="155"/>
+        <CursorPos X="49" Y="171"/>
+        <UsageCount Value="81"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="ubomt.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="729"/>
-        <CursorPos X="13" Y="749"/>
-        <UsageCount Value="76"/>
-        <Bookmarks Count="5">
+        <EditorIndex Value="1"/>
+        <TopLine Value="888"/>
+        <CursorPos X="31" Y="903"/>
+        <UsageCount Value="81"/>
+        <Bookmarks Count="6">
           <Item0 X="20" Y="104" ID="9"/>
-          <Item1 Y="564" ID="7"/>
-          <Item2 X="4" Y="837" ID="1"/>
-          <Item3 Y="545" ID="2"/>
-          <Item4 Y="751" ID="3"/>
+          <Item1 Y="577" ID="7"/>
+          <Item2 X="4" Y="958" ID="1"/>
+          <Item3 Y="558" ID="2"/>
+          <Item4 Y="779" ID="3"/>
+          <Item5 X="29" Y="409" ID="8"/>
         </Bookmarks>
         <Loaded Value="True"/>
       </Unit1>
@@ -35,7 +35,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="31" Y="11"/>
-        <UsageCount Value="74"/>
+        <UsageCount Value="79"/>
       </Unit2>
       <Unit3>
         <Filename Value="ubomt_soggetto_rdbms_ahr.pas"/>
@@ -43,7 +43,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="10"/>
         <CursorPos X="25" Y="41"/>
-        <UsageCount Value="66"/>
+        <UsageCount Value="71"/>
       </Unit3>
       <Unit4>
         <Filename Value="ubomt_persistence.pas"/>
@@ -51,7 +51,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="20"/>
         <CursorPos Y="51"/>
-        <UsageCount Value="66"/>
+        <UsageCount Value="71"/>
       </Unit4>
       <Unit5>
         <Filename Value="ubomt_so_connection.pas"/>
@@ -59,24 +59,22 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="28"/>
         <CursorPos X="29" Y="16"/>
-        <UsageCount Value="62"/>
+        <UsageCount Value="67"/>
       </Unit5>
       <Unit6>
         <Filename Value="ubomt_rest.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="58"/>
+        <UsageCount Value="63"/>
       </Unit6>
       <Unit7>
         <Filename Value="ubomt_svc_authenticate.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="62"/>
-        <CursorPos X="7" Y="79"/>
-        <UsageCount Value="52"/>
-        <Bookmarks Count="1">
-          <Item0 Y="132"/>
-        </Bookmarks>
+        <TopLine Value="27"/>
+        <CursorPos X="34" Y="42"/>
+        <UsageCount Value="57"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
@@ -84,7 +82,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="19" Y="16"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="48"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\..\fpcdeluxe\fpcsrc\packages\fcl-db\src\json\fpjsondataset.pp"/>
@@ -295,9 +293,9 @@
         <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\rtl\objpas\typinfo.pp"/>
         <UnitName Value="TypInfo"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="249"/>
-        <CursorPos X="9" Y="263"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="816"/>
+        <CursorPos X="9" Y="829"/>
+        <UsageCount Value="11"/>
       </Unit39>
       <Unit40>
         <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\tests\test\trtti1.pp"/>
@@ -309,8 +307,8 @@
       <Unit41>
         <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\rtl\inc\systemh.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="346"/>
-        <CursorPos X="3" Y="360"/>
+        <TopLine Value="1354"/>
+        <CursorPos X="11" Y="1368"/>
         <UsageCount Value="10"/>
       </Unit41>
       <Unit42>
@@ -319,127 +317,146 @@
         <TopLine Value="13"/>
         <UsageCount Value="10"/>
       </Unit42>
+      <Unit43>
+        <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1160"/>
+        <CursorPos X="3" Y="1174"/>
+        <UsageCount Value="10"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\rtl\objpas\fgl.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1696"/>
+        <CursorPos Y="1711"/>
+        <UsageCount Value="10"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="..\..\..\..\..\..\home\marcello\devtools\laztrunc\fpcsrc\rtl\objpas\sysutils\sysutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="256"/>
+        <CursorPos X="18" Y="270"/>
+        <UsageCount Value="10"/>
+      </Unit45>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="161" Column="34" TopLine="147"/>
+        <Caret Line="760" Column="14" TopLine="748"/>
       </Position1>
       <Position2>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="705" Column="3" TopLine="701"/>
+        <Caret Line="183" Column="15" TopLine="163"/>
       </Position2>
       <Position3>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="161" Column="15" TopLine="147"/>
+        <Caret Line="814" Column="11" TopLine="805"/>
       </Position3>
       <Position4>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="707" Column="9" TopLine="701"/>
+        <Filename Value="bomt_test_console.lpr"/>
+        <Caret Line="100" Column="9" TopLine="95"/>
       </Position4>
       <Position5>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="172" Column="21" TopLine="155"/>
+        <Caret Line="842" Column="19" TopLine="835"/>
       </Position5>
       <Position6>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="740" Column="3" TopLine="738"/>
       </Position6>
       <Position7>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="171" Column="15" TopLine="158"/>
+        <Caret Line="997" Column="20" TopLine="991"/>
       </Position7>
       <Position8>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="735" TopLine="733"/>
       </Position8>
       <Position9>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="171" Column="15" TopLine="157"/>
+        <Caret Line="970" Column="46" TopLine="956"/>
       </Position9>
       <Position10>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="735" Column="4" TopLine="733"/>
+        <Caret Line="177" Column="15" TopLine="163"/>
       </Position10>
       <Position11>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="172" Column="16" TopLine="157"/>
+        <Caret Line="774" Column="18" TopLine="760"/>
       </Position11>
       <Position12>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="740" Column="3" TopLine="738"/>
+        <Caret Line="176" Column="15" TopLine="164"/>
       </Position12>
       <Position13>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="169" Column="15" TopLine="158"/>
+        <Caret Line="760" Column="15" TopLine="755"/>
       </Position13>
       <Position14>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="726" Column="21" TopLine="714"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="211" Column="17" TopLine="204"/>
       </Position14>
       <Position15>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="172" Column="17" TopLine="155"/>
+        <Filename Value="bomt_test_console.lpr"/>
+        <Caret Line="7" Column="9"/>
       </Position15>
       <Position16>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="749" TopLine="730"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="7" Column="26"/>
       </Position16>
       <Position17>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="831" Column="4" TopLine="818"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="313" TopLine="288"/>
       </Position17>
       <Position18>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="747" Column="4" TopLine="730"/>
+        <Caret Line="526" Column="13" TopLine="512"/>
       </Position18>
       <Position19>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="849" Column="31" TopLine="830"/>
+        <Caret Line="545" Column="3" TopLine="540"/>
       </Position19>
       <Position20>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="411" Column="14" TopLine="397"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="295" Column="28" TopLine="287"/>
       </Position20>
       <Position21>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="172" Column="15" TopLine="156"/>
+        <Caret Line="546" Column="25" TopLine="524"/>
       </Position21>
       <Position22>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="736" Column="4" TopLine="734"/>
+        <Caret Line="526" Column="13" TopLine="524"/>
       </Position22>
       <Position23>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="174" Column="23" TopLine="158"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="40" Column="20" TopLine="28"/>
       </Position23>
       <Position24>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="756" Column="3" TopLine="754"/>
+        <Caret Line="414" Column="19" TopLine="400"/>
       </Position24>
       <Position25>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="172" Column="15" TopLine="161"/>
+        <Caret Line="890" Column="3" TopLine="888"/>
       </Position25>
       <Position26>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="737" TopLine="734"/>
+        <Caret Line="415" Column="17" TopLine="400"/>
       </Position26>
       <Position27>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="174" Column="15" TopLine="158"/>
+        <Caret Line="907" TopLine="895"/>
       </Position27>
       <Position28>
         <Filename Value="ubomt.pas"/>
-        <Caret Line="756" Column="12" TopLine="754"/>
+        <Caret Line="414" Column="17" TopLine="401"/>
       </Position28>
       <Position29>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="855" Column="32" TopLine="839"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="41" Column="18" TopLine="28"/>
       </Position29>
       <Position30>
-        <Filename Value="ubomt.pas"/>
-        <Caret Line="173" Column="15" TopLine="158"/>
+        <Filename Value="ubomt_svc_authenticate.pas"/>
+        <Caret Line="166" Column="38" TopLine="150"/>
       </Position30>
     </JumpHistory>
     <RunParams>
@@ -447,7 +464,7 @@
       <Modes Count="1" ActiveMode="default">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="-s login -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
+            <CommandLineParams Value="-s autenticazione\login -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
           </local>
         </Mode0>
       </Modes>
@@ -457,8 +474,10 @@
         <Item1 Value="/usr/bin/xterm -T &apos;Lazarus Run Output&apos; -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
         <Item2 Value="/usr/bin/konsole -T &apos;Lazarus Run Output&apos; -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </List0>
-      <List1 Name="CommandLineParameters" Count="1">
-        <Item1 Value="-s login -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
+      <List1 Name="CommandLineParameters" Count="3">
+        <Item1 Value="-s autenticazione/login -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
+        <Item2 Value="-s autenticazione -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
+        <Item3 Value="-s login -m get -p &quot;usr=marcello;pwd=pippo555;env=DDNRT&quot;"/>
       </List1>
     </HistoryLists>
   </ProjectSession>
@@ -468,15 +487,36 @@
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="ubomt.pas"/>
-        <Line Value="629"/>
+        <Source Value="ubomt_svc_authenticate.pas"/>
+        <Line Value="174"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="ubomt_svc_authenticate.pas"/>
+        <Line Value="146"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="ubomt.pas"/>
-        <Line Value="845"/>
+        <Line Value="950"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="bomt_test_console.lpr"/>
+        <Line Value="152"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="bomt_test_console.lpr"/>
+        <Line Value="111"/>
       </Item>
     </BreakPoints>
   </Debugging>

@@ -158,6 +158,7 @@ type
 
   TBomt_Logger = class
   private
+    FIdent: integer;
     procedure DoSend(const AMsg: string; const AppendEOL: boolean=True);
 
   private
@@ -165,6 +166,9 @@ type
     FLogStream: TFileStream;
 
     FAppending: boolean;
+    function GetFileName: string;
+
+    property Ident: integer read FIdent write FIdent;
   public
     constructor Create(const AConfig: TBomt_AppConfig); virtual;
     destructor Destroy; override;
@@ -174,9 +178,14 @@ type
     procedure SendEol;
     procedure Watch(const AKey, AVal: string);
     procedure Watch(const AKey: string; const AVal: Int64);
+    procedure SendError(const AMsg: string);
+    procedure EnterIn(const AEnterName: string);
+    procedure ExitFrom(const AEnterName: string);
+
     // procedure Send(ARequest: TBomt_Request);
 
     property Config: TBomt_AppConfig read FConfig write FConfig;
+    property FileName: string read GetFileName;
   end;
 
 
@@ -188,6 +197,7 @@ type
     FEndPoint: string;
     FParams: TStringList;
     FRequestKind: TBomt_RequestMethod;
+    FService: string;
     FSession: TBomt_SID;
   public
     constructor Create; virtual;
@@ -196,6 +206,7 @@ type
     property RequestKind: TBomt_RequestMethod read FRequestKind write FRequestKind;
     property AuthToken: TBomt_SID read FAuthToken write FAuthToken;
     property Session: TBomt_SID read FSession write FSession;
+    property Service: string read FService write FService;
     property EndPoint: string read FEndPoint write FEndPoint;
     property Params: TStringList read FParams;
   end;
@@ -387,16 +398,18 @@ type
 
   { TBomt_Service }
 
-  [TBomt_Service('xxx', 'Servizio per autenticazione utenti e validazione tokens')]
+  [TBomt_Service('service xxx', 'description of xxx service')]
   TBomt_Service = class
   private
     FConfig: TBomt_AppConfig;
     FLogger: TBomt_Logger;
     FRequest: TBomt_Request;
     FResponse: TBomt_Response;
+
+    procedure ExecuteService(O : TBomt_Service; const AName: string = '');
   public
     // abstract
-    function DoExecute: boolean; virtual; abstract;
+    // function DoExecute: boolean; virtual; abstract;
   public
     constructor Create; virtual;
     constructor Create(const ARequest: TBomt_Request; const AResponse: TBomt_Response;
@@ -512,7 +525,7 @@ var
 
   procedure Bomt_RegisterService(const AClassService: TServiceClass);
   Procedure DumpTypeInfo (O : TBomt_Service);
-  Procedure TestGet (O : TBomt_Service; const AName: string = '');
+  Procedure TestGet(O : TBomt_Service; const AName: string = '');
 
 
 
@@ -606,25 +619,24 @@ end;
 
 
 Procedure TestGet (O : TBomt_Service; const AName: string = '');
-
 Var
     PT : PTypeData;
     PI : PTypeInfo;
     I,J : Longint;
     PP : PPropList;
     prI : PPropInfo;
-    Intf : IInterface;
+    // Intf : IInterface;
 begin
   PI:=O.ClassInfo;
-  Writeln ('Type kind : ',TypeNames[PI^.Kind]);
-  Writeln ('Type name : ',PI^.Name);
+  // Writeln ('Type kind : ',TypeNames[PI^.Kind]);
+  // Writeln ('Type name : ',PI^.Name);
   PT:=GetTypeData(PI);
-  If PT^.ParentInfo=Nil then
-    Writeln ('Object has no parent info')
-  else
-    Writeln ('Object has parent info');
-  Writeln ('Property Count : ',PT^.PropCount);
-  Writeln ('Unit name      : ',PT^.UnitName);
+  // If PT^.ParentInfo=Nil then
+  //   Writeln ('Object has no parent info')
+  // else
+  //   Writeln ('Object has parent info');
+  // Writeln ('Property Count : ',PT^.PropCount);
+  // Writeln ('Unit name      : ',PT^.UnitName);
   GetMem (PP,PT^.PropCount*SizeOf(Pointer));
   GetPropInfos(PI,PP);
   For I:=0 to PT^.PropCount-1 do
@@ -636,7 +648,7 @@ begin
 
     With Pri^ do
       begin
-      Write ('(Examining ',name,' : Type : ',TypeNames[PropType^.Kind],', ');
+      Writeln ('(Examining ',name,' : Type : ',TypeNames[PropType^.Kind],', ');
       If (Proptype^.kind in Ordinaltypes) Then
         begin
         J:=GetOrdProp(O,pri);
@@ -712,6 +724,14 @@ begin
   FLogStream.Write(s[1], n);
 end;
 
+function TBomt_Logger.GetFileName: string;
+begin
+  if Assigned(FLogStream) then
+     result := FLogStream.FileName
+  else
+     result := 'not assigned';
+end;
+
 constructor TBomt_Logger.Create(const AConfig: TBomt_AppConfig);
 var s: string;
 begin
@@ -725,6 +745,7 @@ begin
    FLogStream:=TFileStream.Create(s, fmCreate);
    FLogStream.Position := 0;
    FAppending:=False;
+   FIdent:=0;
 end;
 
 destructor TBomt_Logger.Destroy;
@@ -733,8 +754,12 @@ begin
 end;
 
 procedure TBomt_Logger.Send(const AMsg: string);
+var s: string;
 begin
-   DoSend( Format('%s %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), AMsg ]));
+   s:=AMsg;
+   if FIdent > 0 then
+      s:=StringOfChar(' ', FIdent)+s;
+   DoSend( Format('%s %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), s]));
    FAppending:=False;
 end;
 
@@ -744,7 +769,10 @@ begin
   s:='';
   if not FAppending then begin
      FAppending:=True;
-     s:=Format('%s %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), AMsg ])
+     s:=AMsg;
+     if FIdent > 0 then
+        s:=StringOfChar(' ', FIdent) + s;
+     s:=Format('%s %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), s ])
   end else begin
      s:= ' - ' + AMsg;
   end;
@@ -766,7 +794,96 @@ begin
   Send(AKey + ' = ' + IntToStr(AVal));
 end;
 
+procedure TBomt_Logger.SendError(const AMsg: string);
+begin
+  Send('*** ERROR');
+  Send(AMsg);
+end;
+
+procedure TBomt_Logger.EnterIn(const AEnterName: string);
+begin
+  Send('Enter in: ' + AEnterName);
+  inc(FIdent, 2);
+end;
+
+procedure TBomt_Logger.ExitFrom(const AEnterName: string);
+begin
+  dec(FIdent, 2);
+  Send('Exit from: ' + AEnterName);
+end;
+
 { TBomt_Service }
+
+procedure TBomt_Service.ExecuteService(O: TBomt_Service; const AName: string);
+Var PT : PTypeData;
+    PI : PTypeInfo;
+    I,J : Longint;
+    PP : PPropList;
+    prI : PPropInfo;
+    // Intf : IInterface;
+begin
+  PI:=O.ClassInfo;
+  // Writeln ('Type kind : ',TypeNames[PI^.Kind]);
+  // Writeln ('Type name : ',PI^.Name);
+  PT:=GetTypeData(PI);
+  // If PT^.ParentInfo=Nil then
+  //   Writeln ('Object has no parent info')
+  // else
+  //   Writeln ('Object has parent info');
+  // Writeln ('Property Count : ',PT^.PropCount);
+  // Writeln ('Unit name      : ',PT^.UnitName);
+  GetMem (PP,PT^.PropCount*SizeOf(Pointer));
+  GetPropInfos(PI,PP);
+  For I:=0 to PT^.PropCount-1 do
+    begin
+    pri:=PP^[i];
+
+    if (AName<>'') and (AName<>Pri^.Name) then
+       continue;
+
+    With Pri^ do
+      begin
+      Logger.Send('Endpoint ' + name + ' (Type: ' + TypeNames[PropType^.Kind] + ') ');
+      If (Proptype^.kind in Ordinaltypes) Then
+        begin
+        J:=GetOrdProp(O,pri);
+        Logger.Send('Handled: ' + IntToStr(j));
+        If PropType^.Kind=tkenumeration then
+          Logger.Send('(=' + GetEnumName(Proptype,J) + ')')
+        end
+      else
+        Case pri^.proptype^.kind of
+          tkfloat :  begin
+                     Logger.Send('Value : ');
+                     Flush(output);
+                     Logger.Send( FloatToStr( GetFloatProp(O,pri) ) );
+                     end;
+        tkAstring : begin
+                    Logger.Send('value : ');
+                    flush (output);
+                    Logger.Send(GetStrProp(O,Pri));
+                    end;
+        tkInterface : begin
+                       Logger.Send('value : ');
+                       flush (output);
+                       Logger.Send(inttostr(PtrUInt(GetInterfaceProp(O,Pri))));
+                       { play a little bit with the interface to test SetInterfaceProp }
+                       SetInterfaceProp(O,Pri,TInterfacedObject.Create);
+                     end;
+        tkClass   : begin
+                       Logger.Send('value : ');
+                       flush (output);
+                       Logger.Send(inttostr(PtrUInt(GetObjectProp(O,Pri))));
+                     end;
+        else
+          Logger.Send('Untested type!');
+          // Write ('Untested type:',ord(pri^.proptype^.kind));
+        end;
+
+      end;
+    end;
+  FreeMem (PP);
+end;
 
 constructor TBomt_Service.Create;
 begin
@@ -779,14 +896,18 @@ constructor TBomt_Service.Create(const ARequest: TBomt_Request;
   const AResponse: TBomt_Response; const AConfig: TBomt_AppConfig;
   const ALogger: TBomt_Logger);
 begin
+  ALogger.Send('Creating: ' + ClassName);
+
   inherited Create;
 
   Request:=ARequest;
   Response:=AResponse;
+  Response.StatusCod:=404;
+  Response.StatusDes:='404 (Endpoint Not Found)';
+
   Config:=AConfig;
   Logger:=ALogger;
 
-  Logger.Send(ClassName);
 
 end;
 
@@ -809,22 +930,22 @@ Var PT : PTypeData;
     PP : PPropList;
     s: string;
     AT: PAttributeTable;
-    AE: TAttributeEntry;
+    // AE: TAttributeEntry;
     Attribute : TCustomAttribute;
-    AttrEntry: TAttributeEntry;
+    // AttrEntry: TAttributeEntry;
     scan: integer;
     rm: TBomt_RequestMethod;
 begin
-  Logger.Send('=== Begin execute');
+  Logger.EnterIn(self.ClassName);
+
   PI:=self.ClassInfo;
-
-
   PT:=GetTypeData(PI);
-  //DumpMem(PByte(PI));
-  If PT^.ParentInfo=Nil then
-    Logger.Send('Object has no parent info')
-  else
-    Logger.Send('Object has parent info');
+
+  // DumpMem(PByte(PI));
+  // If PT^.ParentInfo=Nil then
+  //   Logger.Send('Object has no parent info')
+  // else
+  //   Logger.Send('Object has parent info');
 
   s:=Format('%s %s (unit %s) / %d method(s)',
             [TypeNames[PI^.Kind],PI^.Name,PT^.UnitName,PT^.PropCount]);
@@ -837,11 +958,37 @@ begin
     With PP^[I]^ do
       begin
         Logger.Watch('Property name', Name);
-        Logger.Watch('Type kind', TypeNames[PropType^.Kind]);
-        Logger.Watch('Type Name', PropType^.Name);
+        // Logger.Watch('Type kind', TypeNames[PropType^.Kind]);
+        // Logger.Watch('Type Name', PropType^.Name);
         Logger.Watch('Attr. count', PP^[I]^.AttributeTable^.AttributeCount);
 
-      end;
+        if (not FResponse.Handled) and
+           (LowerCase(PP^[I]^.Name) = LowerCase(FRequest.EndPoint)) then begin
+
+            AT:=PP^[I]^.AttributeTable;
+            if PP^[I]^.AttributeTable^.AttributeCount > 0 then
+               for scan:=0 to PP^[I]^.AttributeTable^.AttributeCount - 1 do begin
+                   Attribute := GetAttribute(AT,scan);
+                   Logger.Watch(Format('attr[%d]', [scan]), TCustomAttribute( Attribute ).ClassName);
+                   if Attribute is TBomt_MethodAttribute then begin
+                      Logger.Append('methods: ');
+                      for rm in TBomt_MethodAttribute( Attribute ).MethodsHandled do begin
+                          Logger.Append(GetEnumName(TypeInfo(TBomt_RequestMethod), Ord(rm)) );
+                      end;
+                      Logger.SendEol;
+                   end;
+                   Attribute.Free;
+                   // Logger.Send('--- calling service');
+                   // TestGet(self, PP^[I]^.Name);
+                   ExecuteService(self, PP^[I]^.Name);
+                   // Logger.Send('--- EOF service');
+               end;
+
+        end; // if match
+
+      end; // with
+
+    {
       AT:=PP^[I]^.AttributeTable;
       if PP^[I]^.AttributeTable^.AttributeCount > 0 then
          for scan:=0 to PP^[I]^.AttributeTable^.AttributeCount - 1 do begin
@@ -855,14 +1002,17 @@ begin
                 Logger.SendEol;
              end;
              Attribute.Free;
-             Logger.Send('--- calling service');
+             // Logger.Send('--- calling service');
              // TestGet(self, PP^[I]^.Name);
-             Logger.Send('--- EOF service');
+             ExecuteService(self, PP^[I]^.Name);
+             // Logger.Send('--- EOF service');
          end;
+    }
     FreeMem (PP);
 
-  result := DoExecute;
-  Logger.Send('=== End execute');
+    result := FResponse.Handled;
+  // result := DoExecute;
+  Logger.ExitFrom(self.ClassName);
 end;
 
 { TBomt_Response }
@@ -872,7 +1022,8 @@ begin
   FDocTech:=nil;
   FDocUser:=nil;
   FResponseData:=nil;
-  FResponseUtils:=nil
+  FResponseUtils:=nil;
+  FHandled:=False;
 end;
 
 

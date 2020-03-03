@@ -26,6 +26,7 @@ type
   protected
     procedure DoRun; override;
   private
+    FEndPoint: string;
     FMethod: TBomt_RequestMethod;
     FParams: TStringList;
     FServiceName: string;
@@ -38,6 +39,7 @@ type
     procedure WriteHelp; virtual;
 
     property ServiceName: string read FServiceName write FServiceName;
+    property EndPoint: string read FEndPoint write FEndPoint;
     property Method: TBomt_RequestMethod read FMethod write FMethod;
     property Token: string read FToken write FToken;
     property Session: string read FSession write FSession;
@@ -53,6 +55,7 @@ var
   cnf: TBomt_AppConfig;
   blog: TBomt_Logger;
   sPar: string;
+  p:integer;
 begin
   // quick check parameters
   ErrorMsg:=CheckOptions('hsmtxp', 'help');
@@ -69,8 +72,14 @@ begin
     Exit;
   end;
 
-  if HasOption('s', 'service') then
+  if HasOption('s', 'service') then begin
      FServiceName:=GetOptionValue('s');
+     p:=pos('/', FServiceName);
+     if p>0 then begin
+        FEndPoint:=Copy(FServiceName,p+1,Length(FServiceName));
+        FServiceName:=copy(FServiceName,1,p-1);
+     end;
+  end;
 
   if HasOption('m', 'method') then begin
      case UpperCase(GetOptionValue('m')) of
@@ -99,7 +108,7 @@ begin
   blog:=TBomt_Logger.Create(cnf);
 
   try
-    blog.Send('service ' + ServiceName);
+    blog.Send('service ' + ServiceName + '/' + EndPoint);
 
     case FMethod of
        brkDataGet: blog.Send('method brkDataGet');
@@ -119,8 +128,6 @@ begin
   end;
 
 
-
-
   // stop program loop
   Terminate;
 end;
@@ -133,36 +140,55 @@ var req: TBomt_Request;
     jResp, jo: TJSONObject;
 begin
 
-  ALogger.Send('Main execute: BEGIN');
+  ALogger.Send('Main: BEGIN');
 
   // richiesta
   req:=TBomt_Request.Create;
   req.AuthToken   := Token;
   req.Session     := Session;
   req.RequestKind := Method;
-  req.EndPoint    := ServiceName;
+  req.Service     := ServiceName;
+  req.EndPoint    := EndPoint;
   req.Params.Text := Params.Text;
 
   // response
   res:=TBomt_Response.Create;
-
-  // servizio
-  // svc := TBomt_Auth_Service.Create(req, res, cnf, blog);
-  if ServiceList.IndexOf(ServiceName) >= 0 then begin
-     ALogger.Send('Main execute - Found: ' + ServiceName);
-     ALogger.Send('Main execute - Class: ' + ServiceList[ServiceName].ClassName);
-  end else begin
-     ALogger.Send('Main execute - NO SERVICE FOUND!');
-  end;
-
-  svc := ServiceList[ServiceName].Create(req, res, AConfig, ALogger);
   jResp:=TJSONObject.Create;
+
   try
 
-    try
-      ALogger.Send('Main execute - run service');
-      svc.Execute;
-      ALogger.Send('Main execute - end of run (service)');
+      // servizio
+      // svc := TBomt_Auth_Service.Create(req, res, cnf, blog);
+      if ServiceList.IndexOf(ServiceName) >= 0 then begin
+         ALogger.Send('Main, Found: ' + ServiceName);
+         ALogger.Send('Main, Class: ' + ServiceList[ServiceName].ClassName);
+
+         svc := ServiceList[ServiceName].Create(req, res, AConfig, ALogger);
+         try
+
+           try
+             ALogger.EnterIn('Application (run service)');
+             svc.Execute;
+             ALogger.ExitFrom('Application (run service)');
+
+           except
+             on e: Exception do begin
+               ALogger.Send('*** ERROR ***');
+               ALogger.Send(e.Message);
+             end;
+           end;
+
+         finally
+           FreeAndNil(svc);
+         end;
+
+      end else begin
+         ALogger.Send('Main, NO SERVICE FOUND!');
+         res.StatusCod:=404;
+         res.StatusDes:='404 (Not Found)';
+      end;
+
+      // costruisce la risposta
       jo:=TJSONObject.Create;
       jo.Add('Code', res.StatusCod);
       jo.Add('Description', res.StatusDes);
@@ -180,25 +206,18 @@ begin
       if Assigned(res.DocUser) then
          jResp.Add('DocUser', res.DocUser);
 
+      // restituisce la risposta
       ALogger.Send(jResp.AsJSON);
       writeln(jResp.AsJSON);
 
-    except
-      on e: Exception do begin
-        ALogger.Send('*** ERROR ***');
-        ALogger.Send(e.Message);
-      end;
-    end;
-
-
   finally
+
     FreeAndNil(jResp);
-    FreeAndNil(svc);
     FreeAndNil(req);
     FreeAndNil(res);
   end;
 
-  ALogger.Send('Main execute: END');
+  ALogger.Send('Main: END');
 end;
 
 constructor TBomtTestApplication.Create(TheOwner: TComponent);

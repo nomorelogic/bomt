@@ -11,7 +11,6 @@ uses
   , md5
   , fpjson
   , typinfo
-  , rtti
   ;
 
 
@@ -35,19 +34,12 @@ type
 
   { TBomt_Auth_Service }
 
-  [TBomt_Service('login', 'Servizio per autenticazione utenti e validazione tokens')]
+  [TBomt_Service('autenticazione', 'Servizio per autenticazione utenti e validazione tokens')]
   TBomt_Auth_Service = Class(TBomt_Service)
   private
     function CreateToken(const AUser, ARole: string): string;
     function GetLogin: boolean;
     // function CreateSession(const AUser, ARole, AToken: string): string; // sessione non necessaria
-  public
-    // const ServiceName = 'login';
-  public
-
-    function DoExecute: boolean; override;
-    procedure ReadServiceMethods;
-
   published
 
     [TBomt_Method([brkDataGet, brkDataQuery])]
@@ -64,6 +56,7 @@ uses variants;
 { TBomt_Auth_Service }
 
 
+{
 function TBomt_Auth_Service.DoExecute: boolean;
 var m: TBomt_SystemObjectManager;
     r: TBomt_Auth_Reader;
@@ -131,6 +124,7 @@ procedure TBomt_Auth_Service.ReadServiceMethods;
 begin
 
 end;
+}
 
 
 function TBomt_Auth_Service.CreateToken(const AUser, ARole: string): string;
@@ -139,6 +133,7 @@ var s, sfilename: string;
 begin
    sl:=TStringList.Create;
    try
+     s:='';
      sl.Values['user']:=AUser;
      sl.Values['role']:=ARole;
      sl.Values['datetime.create']:=FormatDateTime('yyyy-mm-dd_hhnnss[zzz]', Now);
@@ -149,16 +144,84 @@ begin
      sfilename:=Config.Options['Sys'].Values['tokenfolder'];
      sfilename:=sfilename + PathDelim + s + '.dat';
      sl.SaveToFile(sfilename);
+     result:=s;
    finally
      FreeAndNil(sl);
    end;
-   result:=s;
 end;
 
 function TBomt_Auth_Service.GetLogin: boolean;
+var m: TBomt_SystemObjectManager;
+    r: TBomt_Auth_Reader;
+    sUser, sPass, sToken: string;
+    WUser: TBomtSoUser;
+    i: integer;
 begin
-  writeln('--- TBomt_Auth_Service.GetLogin: boolean; ---');
-  result := false; //DoExecute;
+   // writeln('... TBomt_Auth_Service.DoExecute');
+   // ReadServiceMethods;
+   // DumpTypeInfo(self);
+   // writeln('... test get');
+   // TestGet(self);
+   // writeln('... TBomt_Auth_Service.DoExecute');
+   Logger.EnterIn('TBomt_Auth_Service.GetLogin');
+
+   result := False;
+   Response.StatusCod:=0;
+   Response.StatusDes:='';
+   Response.Handled:=True;
+
+
+   m:=TBomt_SystemObjectManager.Create('manag01', Config, Logger);
+   try
+     r:=TBomt_Auth_Reader.Create(Config, Logger);
+     r.Items:=m.Items;
+
+     m.Reader:=r;
+
+     sUser:=Request.Params.Values['usr'];
+     sPass:=Request.Params.Values['pwd'];
+     i:=m.Reader.LoadItem(sUser);
+
+     if i>= 0 then begin
+        WUser := TBomtSoUser(m.Items[i]);
+        if WUser.Password = sPass then begin
+           try
+             Response.ResponseData:=TJSONObject.Create;
+             sToken:=CreateToken(WUser.UserName, WUser.Role);
+             Response.ResponseData.Add('token', sToken);
+             // Response.ResponseData.Add('session', CreateSession(WUser.UserName, WUser.Role, sToken));
+             Logger.Send(Format('login %s, role %s', [sUser, WUser.Role]));
+             Logger.Watch('Session life', WUser.SessionLife);
+             Response.StatusCod:=200;
+             Response.StatusDes:='200 (OK)';
+           except
+             on e: exception do begin
+                Logger.SendError(e.Message);
+                Response.StatusCod:=404;
+                Response.StatusDes:='404 (Not Found)';
+                // se debug user... fornire Logger.FileName nel response
+             end;
+           end;
+
+        end else begin
+           Response.StatusCod:=204;
+           Response.StatusDes:='204 (No Content)';
+           Logger.Send(Format('login attempt %s, invalid password', [sUser]));
+        end;
+     end else begin
+        Response.StatusCod:=404;
+        Response.StatusDes:='404 (Not Found)';
+        Logger.Send(Format('user %s not found!', [sUser]));
+     end;
+
+   finally
+     FreeAndNil(r);
+     FreeAndNil(m);
+     Logger.ExitFrom('TBomt_Auth_Service.GetLogin');
+   end;
+
+   result :=Response.Handled;
+
 end;
 
 
