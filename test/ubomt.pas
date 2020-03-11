@@ -110,6 +110,7 @@ type
 
   TBomt_ResponseFormat_Set = set of TBomt_ResponseFormat;
 
+  TBomt_ResponseMsgType = (brtHint, brtInfo, brtWarn, brtErr, brtDebug);
 
 
   // - business object -------------
@@ -181,6 +182,7 @@ type
     procedure SendError(const AMsg: string);
     procedure EnterIn(const AEnterName: string);
     procedure ExitFrom(const AEnterName: string);
+    procedure Warning(const AMsg: string);
 
     // procedure Send(ARequest: TBomt_Request);
 
@@ -219,12 +221,16 @@ type
     FDocTech: TJSONObject;
     FDocUser: TJSONObject;
     FHandled: boolean;
+    FMessages: TJSONObject;
     FResponseData: TJSONObject;
     FResponseUtils: TJSONObject;
     FStatusCod: integer;
     FStatusDes: string;
   public
     constructor Create; virtual;
+
+    procedure AddMessage(const AType: TBomt_ResponseMsgType; const AMsg: string);
+
 
     property StatusCod: integer read FStatusCod write FStatusCod;
     property StatusDes: string read FStatusDes write FStatusDes;
@@ -234,6 +240,7 @@ type
     property ResponseUtils: TJSONObject read FResponseUtils write FResponseUtils;
     property DocTech: TJSONObject read FDocTech write FDocTech;
     property DocUser: TJSONObject read FDocUser write FDocUser;
+    property Messages: TJSONObject read FMessages write FMessages;
   end;
 
 
@@ -812,6 +819,11 @@ begin
   Send('Exit from: ' + AEnterName);
 end;
 
+procedure TBomt_Logger.Warning(const AMsg: string);
+begin
+  Send('Warning: ' + AMsg);
+end;
+
 { TBomt_Service }
 
 procedure TBomt_Service.ExecuteService(O: TBomt_Service; const AName: string);
@@ -833,6 +845,9 @@ begin
   // Writeln ('Property Count : ',PT^.PropCount);
   // Writeln ('Unit name      : ',PT^.UnitName);
   GetMem (PP,PT^.PropCount*SizeOf(Pointer));
+
+  try
+
   GetPropInfos(PI,PP);
   For I:=0 to PT^.PropCount-1 do
     begin
@@ -846,7 +861,21 @@ begin
       Logger.Send('Endpoint ' + name + ' (Type: ' + TypeNames[PropType^.Kind] + ') ');
       If (Proptype^.kind in Ordinaltypes) Then
         begin
-        J:=GetOrdProp(O,pri);
+           J:=0;
+           try
+              J:=GetOrdProp(O,pri);
+           except
+              on e: exception do begin
+                 J:=0;
+                 Response.StatusCod:=500;
+                 Response.StatusDes:='500 (Internal Server Error)';
+                 // Response.ResponseData:=TJSONObject.Create;
+                 // Response.ResponseData.Add('exception', e.Message);
+                 Logger.SendError(e.Message);
+              end;
+
+           end;
+
         Logger.Send('Handled: ' + IntToStr(j));
         If PropType^.Kind=tkenumeration then
           Logger.Send('(=' + GetEnumName(Proptype,J) + ')')
@@ -882,7 +911,11 @@ begin
 
       end;
     end;
-  FreeMem (PP);
+
+  finally
+    FreeMem (PP);
+  end;
+
 end;
 
 constructor TBomt_Service.Create;
@@ -935,6 +968,8 @@ Var PT : PTypeData;
     // AttrEntry: TAttributeEntry;
     scan: integer;
     rm: TBomt_RequestMethod;
+    CanExecute: boolean;
+    EndPointOptions: string;
 begin
   Logger.EnterIn(self.ClassName);
 
@@ -950,6 +985,7 @@ begin
   s:=Format('%s %s (unit %s) / %d method(s)',
             [TypeNames[PI^.Kind],PI^.Name,PT^.UnitName,PT^.PropCount]);
   Logger.Send(s);
+  EndPointOptions:='';
 
   GetMem (PP,PT^.PropCount*SizeOf(Pointer));
   GetPropInfos(PI,PP);
@@ -963,8 +999,10 @@ begin
         Logger.Watch('Attr. count', PP^[I]^.AttributeTable^.AttributeCount);
 
         if (not FResponse.Handled) and
-           (LowerCase(PP^[I]^.Name) = LowerCase(FRequest.EndPoint)) then begin
+           // (LowerCase(PP^[I]^.Name) = LowerCase(FRequest.EndPoint))
+           (pos(LowerCase(FRequest.EndPoint),LowerCase(PP^[I]^.Name)) = 1) then begin
 
+            CanExecute:=False;
             AT:=PP^[I]^.AttributeTable;
             if PP^[I]^.AttributeTable^.AttributeCount > 0 then
                for scan:=0 to PP^[I]^.AttributeTable^.AttributeCount - 1 do begin
@@ -973,21 +1011,37 @@ begin
                    if Attribute is TBomt_MethodAttribute then begin
                       Logger.Append('methods: ');
                       for rm in TBomt_MethodAttribute( Attribute ).MethodsHandled do begin
-                          Logger.Append(GetEnumName(TypeInfo(TBomt_RequestMethod), Ord(rm)) );
+                          s:=GetEnumName(TypeInfo(TBomt_RequestMethod), Ord(rm));
+                          Logger.Append( s );
+
+                          if EndPointOptions<>'' then
+                             EndPointOptions:=EndPointOptions+',';
+                          EndPointOptions:=EndPointOptions + copy(s,8,10);
+
+                          CanExecute:=CanExecute or (FRequest.RequestKind=rm);
                       end;
                       Logger.SendEol;
                    end;
                    Attribute.Free;
                    // Logger.Send('--- calling service');
                    // TestGet(self, PP^[I]^.Name);
-                   ExecuteService(self, PP^[I]^.Name);
+                   if CanExecute then
+                      ExecuteService(self, PP^[I]^.Name);
                    // Logger.Send('--- EOF service');
                end;
 
         end; // if match
 
+
       end; // with
 
+  if (Request.RequestKind = brkOptions) and (not Response.Handled) then begin
+      Response.StatusCod:=200;
+      Response.StatusDes:='200 (OK)';
+      Response.ResponseData:=TJSONObject.Create;
+      Response.ResponseData.Add('Options', EndPointOptions);
+      Response.Handled:=True;
+  end;
     {
       AT:=PP^[I]^.AttributeTable;
       if PP^[I]^.AttributeTable^.AttributeCount > 0 then
@@ -1023,7 +1077,28 @@ begin
   FDocUser:=nil;
   FResponseData:=nil;
   FResponseUtils:=nil;
+  FMessages:=nil;
   FHandled:=False;
+end;
+
+procedure TBomt_Response.AddMessage(const AType: TBomt_ResponseMsgType;
+  const AMsg: string);
+var s: string;
+begin
+
+  if not Assigned(FMessages) then
+    FMessages:=TJSONObject.Create;
+
+  case AType of
+     brtHint : s := 'Hint';
+     brtInfo : s := 'Info';
+     brtWarn : s := 'Warning';
+     brtErr  : s := 'Error';
+     brtDebug: s := 'Debug';
+  end;
+
+  FMessages.Add(s, AMsg);
+
 end;
 
 
@@ -1123,6 +1198,8 @@ begin
     _ReadSection('Sys');
 
     _ReadSection('Log');
+
+    _ReadSection('Environments');
 
   finally
     FreeAndNil(cfg);

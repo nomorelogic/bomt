@@ -15,6 +15,7 @@ uses
   // , ubomt_so_connection
   // , ubomt_rest
   , ubomt_svc_authenticate
+  , ubomt_svc_system
   , fpjson
   ;
 
@@ -30,7 +31,7 @@ type
     FMethod: TBomt_RequestMethod;
     FParams: TStringList;
     FServiceName: string;
-    FSession: string;
+    // FSession: string;
     FToken: string;
     procedure ExecuteService(const AConfig: TBomt_AppConfig; const ALogger: TBomt_Logger);
   public
@@ -42,7 +43,7 @@ type
     property EndPoint: string read FEndPoint write FEndPoint;
     property Method: TBomt_RequestMethod read FMethod write FMethod;
     property Token: string read FToken write FToken;
-    property Session: string read FSession write FSession;
+    // property Session: string read FSession write FSession;
     property Params: TStringList read FParams write FParams;
 
   end;
@@ -85,6 +86,9 @@ begin
      case UpperCase(GetOptionValue('m')) of
         'GET': FMethod:=brkDataGet;
         'PUT': FMethod:=brkDataPut;
+        'POST': FMethod:=brkDataPost;
+        'PATCH': FMethod:=brkDataPatch;
+        'OPTIONS': FMethod:=brkOptions;
      else
        FMethod:=brkOptions;
      end;
@@ -93,8 +97,8 @@ begin
   if HasOption('t', 'token') then
      FToken:=GetOptionValue('t');
 
-  if HasOption('x', 'session') then
-     FSession:=GetOptionValue('x');
+  // if HasOption('x', 'session') then
+  //    FSession:=GetOptionValue('x');
 
   if HasOption('p', 'params') then begin
      sPar:=GetOptionValue('p');
@@ -113,13 +117,16 @@ begin
     case FMethod of
        brkDataGet: blog.Send('method brkDataGet');
        brkDataPut: blog.Send('method brkDataPut');
+       brkDataPatch: blog.Send('method brkDataPatch');
        brkOptions: blog.Send('method brkOptions');
     else
        blog.Send('method unknown');
     end;
-    blog.Watch('token', Token);
-    blog.Watch('session', Session);
-    blog.Watch('params', sPar);
+    blog.Send('params: ' + sPar);
+
+    blog.Send('Services: ');
+    for p:=0 to ServiceList.Count-1 do
+        blog.Send( '- ' + ServiceList.Keys[p] );
 
     ExecuteService(cnf, blog);
   finally
@@ -145,10 +152,10 @@ begin
   // richiesta
   req:=TBomt_Request.Create;
   req.AuthToken   := Token;
-  req.Session     := Session;
   req.RequestKind := Method;
   req.Service     := ServiceName;
   req.EndPoint    := EndPoint;
+  // req.Session     := Session;
   req.Params.Text := Params.Text;
 
   // response
@@ -205,6 +212,9 @@ begin
 
       if Assigned(res.DocUser) then
          jResp.Add('DocUser', res.DocUser);
+
+      if Assigned(res.Messages) then
+         jResp.Add('Messages', res.Messages);
 
       // restituisce la risposta
       ALogger.Send(jResp.AsJSON);

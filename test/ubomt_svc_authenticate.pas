@@ -4,6 +4,9 @@ unit ubomt_svc_authenticate;
 
 interface
 
+// -s autenticazione/login -m get -p "usr=marcello;pwd=pippo555;env=DDNRT"
+
+
 uses
   Classes, SysUtils
   , ubomt
@@ -37,8 +40,9 @@ type
   [TBomt_Service('autenticazione', 'Servizio per autenticazione utenti e validazione tokens')]
   TBomt_Auth_Service = Class(TBomt_Service)
   private
-    function CreateToken(const AUser, ARole: string): string;
+    function CreateToken(const AUser, AEnvironment, ARole: string): string;
     function GetLogin: boolean;
+    function EnvironmentIsValid(const AEnv: string; out AMsg: string): boolean;
     // function CreateSession(const AUser, ARole, AToken: string): string; // sessione non necessaria
   published
 
@@ -127,7 +131,7 @@ end;
 }
 
 
-function TBomt_Auth_Service.CreateToken(const AUser, ARole: string): string;
+function TBomt_Auth_Service.CreateToken(const AUser, AEnvironment, ARole: string): string;
 var s, sfilename: string;
     sl:TStringList;
 begin
@@ -136,6 +140,7 @@ begin
      s:='';
      sl.Values['user']:=AUser;
      sl.Values['role']:=ARole;
+     sl.Values['environment']:=AEnvironment;
      sl.Values['datetime.create']:=FormatDateTime('yyyy-mm-dd_hhnnss[zzz]', Now);
      sl.Values['datetime.renew']:='';
      sl.Values['datetime.expire']:=FormatDateTime('yyyy-mm-dd_hhnnss[zzz]', Now + 100); // 100 gg
@@ -151,9 +156,9 @@ begin
 end;
 
 function TBomt_Auth_Service.GetLogin: boolean;
-var m: TBomt_SystemObjectManager;
-    r: TBomt_Auth_Reader;
-    sUser, sPass, sToken: string;
+var mng: TBomt_SystemObjectManager;
+    reader: TBomt_Auth_Reader;
+    sUser, sPass, sToken, sEnv, sMsg: string;
     WUser: TBomtSoUser;
     i: integer;
 begin
@@ -171,23 +176,31 @@ begin
    Response.Handled:=True;
 
 
-   m:=TBomt_SystemObjectManager.Create('manag01', Config, Logger);
+   mng:=TBomt_SystemObjectManager.Create('manag01', Config, Logger);
    try
-     r:=TBomt_Auth_Reader.Create(Config, Logger);
-     r.Items:=m.Items;
+     reader:=TBomt_Auth_Reader.Create(Config, Logger);
+     reader.Items:=mng.Items;
 
-     m.Reader:=r;
+     mng.Reader:=reader;
 
      sUser:=Request.Params.Values['usr'];
      sPass:=Request.Params.Values['pwd'];
-     i:=m.Reader.LoadItem(sUser);
+     sEnv:=Request.Params.Values['env'];
+     i:=mng.Reader.LoadItem(sUser);
 
      if i>= 0 then begin
-        WUser := TBomtSoUser(m.Items[i]);
+        WUser := TBomtSoUser(mng.Items[i]);
         if WUser.Password = sPass then begin
            try
              Response.ResponseData:=TJSONObject.Create;
-             sToken:=CreateToken(WUser.UserName, WUser.Role);
+
+             // environment
+             if not EnvironmentIsValid(sEnv, sMsg) then begin
+                sEnv:='';
+                Response.AddMessage(brtWarn, sMsg);
+             end;
+
+             sToken:=CreateToken(WUser.UserName, sEnv, WUser.Role);
              Response.ResponseData.Add('token', sToken);
              // Response.ResponseData.Add('session', CreateSession(WUser.UserName, WUser.Role, sToken));
              Logger.Send(Format('login %s, role %s', [sUser, WUser.Role]));
@@ -215,12 +228,34 @@ begin
      end;
 
    finally
-     FreeAndNil(r);
-     FreeAndNil(m);
+     FreeAndNil(reader);
+     FreeAndNil(mng);
      Logger.ExitFrom('TBomt_Auth_Service.GetLogin');
    end;
 
    result :=Response.Handled;
+
+end;
+
+function TBomt_Auth_Service.EnvironmentIsValid(const AEnv: string; out
+  AMsg: string): boolean;
+var s: string;
+begin
+  result :=False;
+  AMsg:='';
+
+  s:=Config.Options['Sys'].Values['sysfolder'];
+  if DirectoryExists(s) then begin
+     s:=s+PathDelim+Format('env[%s].ini', [AEnv]);
+     result:=FileExists(s);
+     if not Result then
+        AMsg:='environment not found';
+  end else begin
+     AMsg:='sys folder not found';
+  end;
+
+  if AMsg<>'' then
+     Logger.Warning(AMsg);
 
 end;
 
