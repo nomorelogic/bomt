@@ -11,6 +11,7 @@ uses
   , fpjson
   , typinfo
   , rtti
+  , sqldb, db
   ;
 
 
@@ -252,11 +253,14 @@ type
     FHints: TStringList;
     FIsModified: boolean;
     FIsValid: boolean;
+    FLogger: TBomt_Logger;
     FName: string;
     FWarnings: TStringList;
   public
-    constructor Create(const AName: string); virtual;
+    constructor Create(const AName: string; const ALogger: TBomt_Logger); virtual;
     destructor Destroy; override;
+
+    procedure CloneValuesIn(const O: TBomt_SystemObject);
 
     property Name: string read FName write FName;
     property IsModified: boolean read FIsModified write FIsModified;
@@ -264,11 +268,14 @@ type
     property Hints: TStringList read FHints write FHints;
     property Warnings: TStringList read FWarnings write FWarnings;
     property Errors: TStringList read FErrors write FErrors;
+    property Logger: TBomt_Logger read FLogger;
   end;
 
 
   TBomt_SystemObject_List = specialize TFPGObjectList<TBomt_SystemObject>;
 
+
+  TBomt_SystemObjectManager = class;
 
   { TBomt_Reader }
 
@@ -276,11 +283,16 @@ type
 
   private
     FConfig: TBomt_AppConfig;
-    FItems: TBomt_SystemObject_List;
+    // FItems: TBomt_SystemObject_List;
     FLogger: TBomt_Logger;
+    FManager: TBomt_SystemObjectManager;
   public
     constructor Create; virtual;
-    constructor Create(const AConfig: TBomt_AppConfig; const ALogger: TBomt_Logger); virtual; overload;
+    // todo: manager in create
+    constructor Create(const AConfig: TBomt_AppConfig;
+                       const ALogger: TBomt_Logger;
+                       const AManager: TBomt_SystemObjectManager); virtual; overload;
+    destructor Destroy; override;
 
 
     function LoadItem(const ASid: TBomt_SID): integer; virtual; abstract;
@@ -290,7 +302,8 @@ type
     // injectable
     property Config: TBomt_AppConfig read FConfig write FConfig;
     property Logger: TBomt_Logger read FLogger write FLogger;
-    property Items: TBomt_SystemObject_List read FItems write FItems;
+    // property Items: TBomt_SystemObject_List read FItems write FItems;
+    property Manager: TBomt_SystemObjectManager read FManager;
 
   end;
 
@@ -300,17 +313,24 @@ type
 
   private
     FConfig: TBomt_AppConfig;
-    FItems: TBomt_SystemObject_List;
+    // FItems: TBomt_SystemObject_List;
+    FLogger: TBomt_Logger;
+    FManager: TBomt_SystemObjectManager;
   public
-    constructor Create;
+    constructor Create; virtual;
+    constructor Create(const AConfig: TBomt_AppConfig;
+                       const ALogger: TBomt_Logger;
+                       const AManager: TBomt_SystemObjectManager); virtual; overload;
+    destructor Destroy; override;
 
     procedure SaveItem; virtual; abstract;
     procedure SaveAll; virtual; abstract;
 
     // injectable
     property Config: TBomt_AppConfig read FConfig write FConfig;
-    property Items: TBomt_SystemObject_List read FItems write FItems;
-
+    property Logger: TBomt_Logger read FLogger write FLogger;
+    // property Items: TBomt_SystemObject_List read FItems write FItems;
+    property Manager: TBomt_SystemObjectManager read FManager;
   end;
 
 
@@ -345,7 +365,9 @@ type
     constructor Create(const AName: string); virtual;
     destructor Destroy; override;
 
-    function New(const AName: string): Int64; virtual;
+    function New(const AName: string): Int64; virtual; // deprecated
+    function Add(const ABomtObject: TBomt_SystemObject): Int64; virtual; // deprecated
+
 
     // abstract
     function ValidateItem: boolean; virtual;
@@ -377,15 +399,19 @@ type
 
   TBomt_MethodAttribute = class(TCustomAttribute)
   private
+    FCaption: string;
     FDefaultResponseformat: TBomt_ResponseFormat;
+    FEndPoint: string;
     FMethodsHandled: TBomt_RequestMethod_Set;
     FResponseFormats: TBomt_ResponseFormat_Set;
   public
-    constructor Create(const AMethodsHandled: TBomt_RequestMethod_Set);overload;
+    constructor Create(const AEndPoint: string; const AMethodsHandled: TBomt_RequestMethod_Set; const ACaption: string);overload;
   published
     property MethodsHandled: TBomt_RequestMethod_Set read FMethodsHandled write FMethodsHandled;
     property ResponseFormats: TBomt_ResponseFormat_Set read FResponseFormats write FResponseFormats;
     property DefaultResponseformat: TBomt_ResponseFormat read FDefaultResponseformat write FDefaultResponseformat;
+    property EndPoint: string read FEndPoint;
+    property Caption: string read FCaption;
   end;
 
 
@@ -460,6 +486,32 @@ type
   end;
 
 
+  { TBomtSoConnection }
+
+  TBomtSoConnection = class(TBomt_SystemObject)
+  private
+    FConnectionType: string;
+    FDatabaseName: string;
+    FHostName: string;
+    FPassword: string;
+    FUserName: string;
+  public
+     Conn: TSQLConnector;
+     Trans: TSQLTransaction;
+
+     constructor Create(const AName: string; const ALogger: TBomt_Logger); override;
+     destructor Destroy; override;
+     function OpenConnection(out AExitMessage: string): boolean;
+  published
+     property ConnectionType: string read FConnectionType write FConnectionType;
+     property HostName: string read FHostName write FHostName;
+     property DatabaseName: string read FDatabaseName write FDatabaseName;
+     property UserName: string read FUserName write FUserName;
+     property Password: string read FPassword write FPassword;
+  end;
+
+
+
 
   // -----------
   // sotto: esperimenti, da non considerare
@@ -531,7 +583,7 @@ var
 
 
   procedure Bomt_RegisterService(const AClassService: TServiceClass);
-  Procedure DumpTypeInfo (O : TBomt_Service);
+  Procedure DumpTypeInfo (O : TBomt_SystemObject);
   Procedure TestGet(O : TBomt_Service; const AName: string = '');
 
 
@@ -580,14 +632,13 @@ end;
 
 
 
-Procedure DumpTypeInfo (O : TBomt_Service);
+Procedure DumpTypeInfo (O : TBomt_SystemObject);
 
 Var
     PT : PTypeData;
     PI : PTypeInfo;
     I  : Longint;
     PP : PPropList;
-
 begin
   PI:=O.ClassInfo;
   Writeln ('Type kind : ',TypeNames[PI^.Kind]);
@@ -696,6 +747,68 @@ begin
   FreeMem (PP);
 end;
 
+{ TBomtSoConnection }
+
+constructor TBomtSoConnection.Create(const AName: string;
+  const ALogger: TBomt_Logger);
+begin
+  inherited Create(AName,ALogger);
+
+  Conn:=nil;
+  Trans:=nil;
+end;
+
+destructor TBomtSoConnection.Destroy;
+begin
+  // WriteLn('TMyEtl_Connection.Destroy');
+  if Assigned(Conn) then begin
+     // WriteLn('.Closing ', Conn.Name);
+     if Conn.Connected then begin
+        Conn.CloseTransactions;
+        Conn.CloseDataSets;
+        Conn.Close(True);
+     end;
+     // WriteLn('.Free ', Conn.Name);
+     FreeAndNil(Conn);
+  end;
+
+  FreeAndNil(Trans);
+
+  inherited Destroy;
+end;
+
+function TBomtSoConnection.OpenConnection(out AExitMessage: string): boolean;
+begin
+  result:=false;
+  Conn:=TSQLConnector.Create(nil);
+  // ...actual connector type is determined by this property.
+  // Make sure the ChosenConfig.DBType string matches
+  // the connectortype (e.g. see the string in the
+  // T*ConnectionDef.TypeName for that connector .
+  Conn.Name:=Name;
+  Conn.ConnectorType:=ConnectionType;
+  Conn.HostName:=HostName;
+  Conn.DatabaseName:=DatabaseName;
+  Conn.UserName:=UserName;
+  Conn.Password:=Password;
+
+  Trans:=TSQLTransaction.Create(nil);
+  Trans.DataBase:=Conn;
+
+  Conn.Transaction:=Trans;
+
+  try
+    Conn.Open;
+    result:=Conn.Connected;
+  except
+    on e: exception do begin
+       // Logger.SendException('OpenConnection', e);
+       AExitMessage:=e.Message;
+       raise;
+    end;
+  end;
+end;
+
 // functions and procedures
 
 
@@ -710,11 +823,15 @@ end;
 
 { TBomt_MethodAttribute }
 
-constructor TBomt_MethodAttribute.Create(const AMethodsHandled: TBomt_RequestMethod_Set);
+constructor TBomt_MethodAttribute.Create(const AEndPoint: string;
+  const AMethodsHandled: TBomt_RequestMethod_Set; const ACaption: string);
 begin
   FMethodsHandled := AMethodsHandled;
   FDefaultResponseformat:= brfJson;
   FResponseFormats:= [brfJson, brfOdf, brfCsv, brfPdf];
+
+  FEndPoint:=AEndPoint;
+  FCaption:=ACaption;
 end;
 
 
@@ -1120,25 +1237,63 @@ end;
 
 constructor TBomt_Writer.Create;
 begin
-  FItems:=nil;
+  // FItems:=nil;
+  FConfig:=nil;
+  FLogger:=nil;
+  FManager:=nil;
+end;
+
+constructor TBomt_Writer.Create(const AConfig: TBomt_AppConfig;
+  const ALogger: TBomt_Logger; const AManager: TBomt_SystemObjectManager);
+begin
+  Create;
+
+  FConfig:=AConfig;
+  FLogger:=ALogger;
+  FManager:=AManager;
+  // FItems:=AManager.Items;
+  FManager.Writer:=self;
+end;
+
+destructor TBomt_Writer.Destroy;
+begin
+  // if FManager.Items = FItems then
+  //    FItems:=nil;
+
+  FManager:=nil;
+
+  inherited Destroy;
 end;
 
 { TBomt_Reader }
 
 constructor TBomt_Reader.Create;
 begin
-  FItems:=nil;
+  // FItems:=nil;
   FConfig:=nil;
   FLogger:=nil;
+  FManager:=nil;
 end;
 
 constructor TBomt_Reader.Create(const AConfig: TBomt_AppConfig;
-  const ALogger: TBomt_Logger);
+  const ALogger: TBomt_Logger; const AManager: TBomt_SystemObjectManager);
 begin
   Create;
 
   FConfig:=AConfig;
   FLogger:=ALogger;
+  FManager:=AManager;
+  // FItems:=AManager.Items;
+  FManager.Reader:=self;
+end;
+
+destructor TBomt_Reader.Destroy;
+begin
+  // if FManager.Items = FItems then
+  //    FItems:=nil;
+
+  FManager:=nil;
+  inherited Destroy;
 end;
 
 { TBomt_AppConfig }
@@ -1226,9 +1381,12 @@ end;
 
 { TBomt_SystemObject }
 
-constructor TBomt_SystemObject.Create(const AName: string);
+constructor TBomt_SystemObject.Create(const AName: string;
+  const ALogger: TBomt_Logger);
 begin
   FName:=AName;
+
+  FLogger:=ALogger;
 
   FHints:=nil;
   FWarnings:=nil;
@@ -1242,6 +1400,101 @@ begin
   FreeAndNil(FHints);
 
   inherited Destroy;
+end;
+
+procedure TBomt_SystemObject.CloneValuesIn(const O: TBomt_SystemObject);
+Var PT : PTypeData;
+    PI : PTypeInfo;
+    I,J : Longint;
+    PP : PPropList;
+    prI : PPropInfo;
+    // Intf : IInterface;
+    sVal: string;
+begin
+
+  PI:=O.ClassInfo;
+  // Writeln ('Type kind : ',TypeNames[PI^.Kind]);
+  // Writeln ('Type name : ',PI^.Name);
+  PT:=GetTypeData(PI);
+  // If PT^.ParentInfo=Nil then
+  //   Writeln ('Object has no parent info')
+  // else
+  //   Writeln ('Object has parent info');
+  // Writeln ('Property Count : ',PT^.PropCount);
+  // Writeln ('Unit name      : ',PT^.UnitName);
+  GetMem (PP,PT^.PropCount*SizeOf(Pointer));
+
+  logger.EnterIn('Cloning ' + o.Name);
+  try
+
+  GetPropInfos(PI,PP);
+  For I:=0 to PT^.PropCount-1 do
+    begin
+    pri:=PP^[i];
+
+    // if (AName<>'') and (AName<>Pri^.Name) then continue;
+
+    With Pri^ do
+      begin
+      // Logger.Append('Property ' + name + ': '+ TypeNames[PropType^.Kind] + ' = ');
+      If (Proptype^.kind in Ordinaltypes) Then
+        begin
+           J:=0;
+           try
+              J:=GetOrdProp(O,pri);
+           except
+              on e: exception do begin
+                 J:=0;
+                 Logger.SendError(e.Message);
+              end;
+
+           end;
+        If PropType^.Kind=tkenumeration then
+          Logger.Send('(=' + GetEnumName(Proptype,J) + ')')
+        end
+      else
+        Case pri^.proptype^.kind of
+          tkfloat :  begin
+                     Logger.Send('Value : ');
+                     Flush(output);
+                     Logger.Send( FloatToStr( GetFloatProp(O,pri) ) );
+                     end;
+        tkAstring : begin
+                    // Logger.Send('Before : ');
+                    // flush (output);
+                    // Logger.Send(GetStrProp(O,Pri));
+
+                    sVal:=GetPropValue(self,name);
+                    SetStrProp(O,Pri,sVal);
+                    Logger.Send(Format('Property %s: %s = %s', [ Name, TypeNames[PropType^.Kind], sVal ] ));
+                    flush (output);
+                    end;
+        tkInterface : begin
+                       Logger.Send('value : ');
+                       flush (output);
+                       Logger.Send(inttostr(PtrUInt(GetInterfaceProp(O,Pri))));
+                       { play a little bit with the interface to test SetInterfaceProp }
+                       SetInterfaceProp(O,Pri,TInterfacedObject.Create);
+                     end;
+        tkClass   : begin
+                       Logger.Send('value : ');
+                       flush (output);
+                       Logger.Send(inttostr(PtrUInt(GetObjectProp(O,Pri))));
+                     end;
+        else
+          Logger.Send('Untested type!');
+          // Write ('Untested type:',ord(pri^.proptype^.kind));
+        end;
+
+      end; // with
+    end; // for
+
+  finally
+    FreeMem (PP);
+  end;
+
+  logger.ExitFrom('Cloning ' + o.Name);
+
 end;
 
 { TBomt_SystemObjectManager }
@@ -1307,14 +1560,14 @@ procedure TBomt_SystemObjectManager.SetReader(AValue: TBomt_Reader);
 begin
   if FReader=AValue then Exit;
   FReader:=AValue;
-  FReader.Items:=FItems;
+  // FReader.Items:=FItems;
 end;
 
 procedure TBomt_SystemObjectManager.SetWriter(AValue: TBomt_Writer);
 begin
   if FWriter=AValue then Exit;
   FWriter:=AValue;
-  FWriter.Items:=FItems;
+  // FWriter.Items:=FItems;
 end;
 
 constructor TBomt_SystemObjectManager.Create(const AName: string;
@@ -1335,6 +1588,8 @@ begin
   FItemIndex := -1;
   FConfig:=nil;
   FLogger:=nil;
+  FReader:=nil;
+  FWriter:=nil;
 end;
 
 destructor TBomt_SystemObjectManager.Destroy;
@@ -1352,6 +1607,18 @@ begin
   FItemIndex := DoNew(AName);
   FData:=FItems[FItemIndex];
   result := FItemIndex;
+end;
+
+function TBomt_SystemObjectManager.Add(const ABomtObject: TBomt_SystemObject): Int64;
+begin
+  if Assigned(ABomtObject) then begin
+     FItemIndex := FItems.Add(ABomtObject);
+     FData:=FItems[FItemIndex];
+     result := FItemIndex;
+  end else begin
+     Logger.SendError('TBomt_SystemObjectManager.Add: object not assigned');
+     raise exception.Create('object not assigned');
+  end;
 end;
 
 {

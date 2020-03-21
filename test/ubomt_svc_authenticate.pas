@@ -25,7 +25,9 @@ type
   private
     FUserDataFile: TIniFile;
   public
-    constructor Create(const AConfig: TBomt_AppConfig; const ALogger: TBomt_Logger); override;
+    constructor Create(const AConfig: TBomt_AppConfig;
+                       const ALogger: TBomt_Logger;
+                       const AManager: TBomt_SystemObjectManager); override;
     destructor Destroy; override;
 
 
@@ -46,7 +48,7 @@ type
     // function CreateSession(const AUser, ARole, AToken: string): string; // sessione non necessaria
   published
 
-    [TBomt_Method([brkDataGet, brkDataQuery])]
+    [TBomt_Method('login', [brkDataGet, brkDataQuery], 'autenticazione utente')]
     property Login: boolean read GetLogin;
 
   end;
@@ -178,9 +180,8 @@ begin
 
    mng:=TBomt_SystemObjectManager.Create('manag01', Config, Logger);
    try
-     reader:=TBomt_Auth_Reader.Create(Config, Logger);
-     reader.Items:=mng.Items;
-
+     reader:=TBomt_Auth_Reader.Create(Config, Logger, mng);
+     // reader.Items:=mng.Items;
      mng.Reader:=reader;
 
      sUser:=Request.Params.Values['usr'];
@@ -224,7 +225,7 @@ begin
      end else begin
         Response.StatusCod:=404;
         Response.StatusDes:='404 (Not Found)';
-        Logger.Send(Format('user %s not found!', [sUser]));
+        Logger.Send(Format('404 - user %s not found!', [sUser]));
      end;
 
    finally
@@ -291,14 +292,12 @@ end;
 { TBomt_Auth_Reader }
 
 constructor TBomt_Auth_Reader.Create(const AConfig: TBomt_AppConfig;
-  const ALogger: TBomt_Logger);
+  const ALogger: TBomt_Logger; const AManager: TBomt_SystemObjectManager);
 var udir, ufil: string;
 begin
   ALogger.Send('TBomt_Auth_Reader.Create');
 
-  inherited Create(AConfig, ALogger);
-
-
+  inherited Create(AConfig, ALogger, AManager);
 
   udir:=Config.Options['Sys'].Values['sysfolder'];
   ufil:=Config.Options['Sys'].Values['users'];
@@ -306,10 +305,7 @@ begin
   ALogger.Watch('folder', udir);
   ALogger.Watch('file name', ufil);
 
-
   FUserDataFile:=TIniFile.Create(udir + PathDelim + ufil);
-
-
 end;
 
 destructor TBomt_Auth_Reader.Destroy;
@@ -327,12 +323,13 @@ begin
   s:=FUserDataFile.ReadString(ASid, 'password', '');
   if s <> '' then begin
      // todo: validare la password senza metterla nell'istanza?
-     Wuser:=TBomtSoUser.Create(ASid);
+     Wuser:=TBomtSoUser.Create(ASid,Logger);
      Wuser.UserName:=ASid;
      Wuser.Password:=s;
      Wuser.Role:=FUserDataFile.ReadString(ASid, 'role', '');
      Wuser.SessionLife:=FUserDataFile.ReadInt64(ASid, 'sessionlife', 60);
-     result := Items.Add(Wuser);
+     // result := Items.Add(Wuser);
+     result := Manager.Add(Wuser);
   end;
 
 end;
